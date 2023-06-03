@@ -318,11 +318,11 @@ class Home(Screen, MDBoxLayout):
                 "dob": self.ids.dob.text,
                 "age":self.ids.age.text,
                 "gender":self.ids.gender.text,
-                "username":self.ids.username.text
             }
 
-            ref = 'users/'+firebaseauth.userID+'/Account'
-            firestoredb.store_userData(ref,data)
+            user_uid = firebaseauth.userID
+            # firestoredb.store_userData(ref,data)
+            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').set(data)
 
             Snackbar(
             text="Information Updated",
@@ -539,7 +539,6 @@ class SignUp(Screen):
         dob = self.ids.dob.text
         age = self.ids.age.text
         gender = self.ids.gender.text
-        username = self.ids.username.text
         try:
             user = firebaseauth.auth.create_user_with_email_and_password(email, password)
             user_uid = user['localId']
@@ -551,12 +550,11 @@ class SignUp(Screen):
                 "dob": dob,
                 "age": age,
                 "gender": gender,
-                "username": username,
                 "password": pass_hash,
             }   
-            user_ref = firestoredb.db.collection('users').document(user_uid).set(data)
-            ref = 'users'+firebaseauth.userID+'/Account'
-            firestoredb.store_userData(ref,data)
+            user_ref = firestoredb.db.collection('users').document(user_uid)
+            user_ref.set({})
+            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').set(data)
             self.manager.current = 'login'
             print('Registration Success!')
         except Exception as e:
@@ -580,7 +578,7 @@ class Login(Screen):
     def myCredentials(self,user_id):
         if user_id:
             myScr = screen_manager.get_screen("home")
-            current_cred = firestoredb.db.collection('users').document(user_id).get()
+            current_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('UserInfo').get()
             myCurrCred = current_cred.to_dict()
                         
             #STORE USERNAME
@@ -590,7 +588,9 @@ class Login(Screen):
             myScr.ids.email.text = myCurrCred.get('email')
             myScr.ids.address.text = myCurrCred.get('address')
             myScr.ids.contact.text = myCurrCred.get('phone')
+            myScr.ids.age.text = myCurrCred.get('age')
             myScr.ids.dob.text = myCurrCred.get('dob')
+            myScr.ids.gender.text = myCurrCred.get('gender')
 
 
     def checkNewUser(self,user_id):
@@ -811,6 +811,6 @@ class Ckure(MDApp):
         Clock.schedule_once(self.login, 1)
 
     def login(self, *args):
-        screen_manager.current = "home"
+        screen_manager.current = "login"
 
 Ckure().run()

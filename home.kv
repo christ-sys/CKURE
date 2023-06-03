@@ -116,11 +116,11 @@
                             hint_text: "Gender"
                             pos_hint:{"center_x": .5}
         
-                        MDTextField:
-                            id: password
-                            hint_text: "Password"
-                            password: True
-                            pos_hint:{"center_x": .5}
+                        # MDTextField:
+                        #     id: password
+                        #     hint_text: "Password"
+                        #     password: True
+                        #     pos_hint:{"center_x": .5}
                         
                         MDRaisedButton:
                             text: "Update"
@@ -129,4 +129,5 @@
                             md_bg_color: "#607398"
                             size_hint_x: 0.9
                             size_hint_y: 0.1
+                            elevation: 0
                             on_release: root.updateUserInfo()
