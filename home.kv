@@ -1,0 +1,132 @@
+<home>:
+    name:"home"
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            elevation: 0
+            right_action_items:[["logout",lambda x : app.logout(self.icon)]]
+            md_bg_color:"#323B4E"
+        MDBottomNavigation:
+            panel_color: "#323B4E"
+            selected_color_background: "orange"
+            text_color_active: "lightgrey"
+            
+            MDBottomNavigationItem:
+                name: 'home'
+                text: 'Home'
+                icon: 'home'
+                MDLabel:
+                    text: 'MY CARS'
+                    halign:"center"
+
+            MDBottomNavigationItem:
+                name: 'reports'
+                text: 'Reports'
+                icon: 'file-document'
+                badge_icon: "numeric-5"
+
+                MDLabel:
+                    text: 'ALL CLAIM RECORDS'
+                    halign: 'center'
+            MDBottomNavigationItem:
+                name: 'scan'
+                text: 'Scan'
+                icon: 'line-scan'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: '12dp'
+                    AnchorLayout:
+                        anchor_x: 'center'
+                        anchor_y: 'bottom'
+                        Camera:
+                            id:camera
+                            play:True
+                            resolution:(640, 480)
+                            index:0
+
+                        MDIconButton:
+                            icon:'camera'
+                            on_press: root.Camera()
+            MDBottomNavigationItem:
+                name: 'claims'
+                text: 'Claims'
+                icon: 'car-emergency'
+
+                MDLabel:
+                    text: 'INSURANCE'
+                    halign: 'center'
+            MDBottomNavigationItem:
+                name: 'update_profile'
+                text: 'Profile'
+                icon: 'account'
+                ScrollView:
+                    size_hint: (1, 1)
+                    
+                    GridLayout:
+                        cols: 1
+                        spacing: 0
+                        padding: 30
+                        size_hint_y: None
+                        height: self.minimum_height
+                        id: ProfileUpdate
+                        
+                        
+                        AnchorLayout:
+                            anchor_x: "center"
+
+
+                            size_hint_y: None
+                            MDLabel:
+                                text:"PROFILE"
+                                halign:'center'
+
+                        MDTextField:
+                            id: name
+                            hint_text: "Name"
+                            pos_hint:{"center_x": .5}
+                            
+                        MDTextField:
+                            id: email
+                            hint_text: "Email"
+                            pos_hint:{"center_x": .5}
+ 
+                        MDTextField:
+                            id: address
+                            hint_text: "Address"
+                            pos_hint:{"center_x": .5}
+                        
+                        MDTextField:
+                            id: contact
+                            hint_text: "Contact No."
+                            pos_hint:{"center_x": .5}
+
+
+                        MDTextField:
+                            id: dob
+                            hint_text: "Date of Birth"
+                            pos_hint:{"center_x": .5}
+                            on_focus: if self.focus: root.showCalendar()
+                        MDTextField:
+                            id: age
+                            hint_text: "Age"
+                            pos_hint:{"center_x": .5}
+
+                        MDTextField:
+                            id: gender
+                            hint_text: "Gender"
+                            pos_hint:{"center_x": .5}
+        
+                        MDTextField:
+                            id: password
+                            hint_text: "Password"
+                            password: True
+                            pos_hint:{"center_x": .5}
+                        
+                        MDRaisedButton:
+                            text: "Update"
+                            pos_hint:{"center_x": .5}
+                            mode: "rectangle"
+                            md_bg_color: "#607398"
+                            size_hint_x: 0.9
+                            size_hint_y: 0.1
+                            on_release: root.updateUserInfo()

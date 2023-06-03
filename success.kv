@@ -1,0 +1,55 @@
+<Success>:
+    name: "success"
+    GridLayout:
+        cols:1
+
+        MDTopAppBar:
+            title: "Success"
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+            
+            elevation: 0
+            md_bg_color:(0/255, 139/255, 199/255)
+
+        GridLayout:
+            cols:1
+            padding: dp(20)
+            
+            #create space
+            BoxLayout:
+                orientation:'vertical'
+                height: dp(10)
+
+            MDBoxLayout:
+                orientation:'vertical'
+                padding:20
+                spacing:30
+                # size_hint: 
+            
+                MDLabel:
+                    text: 'Agreement made'
+                    halign:'center'
+                    font_style: 'H6'
+                MDIcon:
+                    icon: 'check-circle'
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    font_size: '150sp'
+                    text_color: (0,0.8,.8,0.5)
+                    theme_text_color: 'Custom'
+                MDLabel:
+                    text: 'Agreement have been made between the owner and the involved party'
+                    halign:'center'
+                    text_color: (0,0,0,0.5)
+                    theme_text_color: 'Custom'
+
+            AnchorLayout:
+                MDFillRoundFlatButton:
+                    text: "Done"
+                    text_color: "white"
+                    halign: 'center'
+                    font_size: '20sp'
+                    size_hint:1, None
+                    radius:1,1
+                    # width: dp(100)
+                    on_release:
+                        app.root.current="home"
+                        root.manager.transition.direction="left"

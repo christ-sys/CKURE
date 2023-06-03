@@ -1,0 +1,12 @@
+0 front-bumper
+1 rear-bumper
+2 mirror
+3 door
+4 front-fender
+5 rear-fender
+6 grills
+7 front-windshield
+8 rear-windshield
+9 door-glass
+10 headlight
+11 taillight

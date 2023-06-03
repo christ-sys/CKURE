@@ -1,0 +1,153 @@
+<SignUp>:
+    name: "signup"
+    MDSliverAppbar:
+        background_color: "#323B4E"
+        radius: [20,20,0,0]
+        MDSliverAppbarHeader:
+            MDRelativeLayout:
+                FitImage:
+                    source: "assets/car-bg.png"
+                MDCard:
+                    md_bg_color:"white"
+                    opacity:.8
+                FitImage:
+                    source: "assets/ckure.png"
+                    pos_hint: {"center_x": .45, "center_y": .5}
+                    size_hint: None, None
+                    size: "300dp", "200dp"
+        MDSliverAppbarContent:
+            id: content
+            md_bg_color:"#323b4e"
+            orientation: "vertical"
+            padding: "12dp"
+            spacing: "12dp"
+            adaptive_height: True
+            MDBoxLayout:
+                md_bg_color:"#323b4e"
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "6dp"
+                padding: "12dp"
+                pos_hint: {"center_y": .6}
+
+                MDLabel:
+                    size_hint_y: None
+                    halign: 'center'
+                    text: "Registration"
+                    theme_text_color:"Custom"
+                    text_color: "white"
+                    font_size: "22sp"
+                    font_name: "fonts/Montserrat-Thin.ttf"
+                    font_name: "fonts/coolvetica.otf"
+
+                MDTextField:
+                    id: name
+                    hint_text: "Name"
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                    id: email
+                    hint_text: "Email"
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                    id: address
+                    hint_text: "Address"
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                MDTextField:
+                    id: contact
+                    hint_text: "Contact No."
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                # dapat calendar tapos matic na yung sa age
+                    id: dob
+                    hint_text: "Date of Birth"
+                    pos_hint:{"center_x": .5}
+                    on_focus: if self.focus: root.showCalendar()
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                # magbbase sa DOB
+                    id: age
+                    hint_text: "Age"
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                # dapat dropdown ito
+                    id: gender
+                    hint_text: "Gender"
+                    pos_hint:{"center_x": .5}
+                    on_focus: if self.focus: root.GenderMenu.open()
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                    id: password
+                    hint_text: "Password"
+                    password: True
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDRaisedButton:
+                    text: "Register"
+                    pos_hint:{"center_x": .5}
+                    mode: "rectangle"
+                    md_bg_color: "#0096c7"
+                    size_hint_x:1
+                    on_press: root.reg_user()

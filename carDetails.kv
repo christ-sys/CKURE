@@ -1,0 +1,60 @@
+<CarDetails>:
+    name: "car_details"
+    GridLayout:
+        cols: 1        
+        GridLayout:
+            cols: 1
+            spacing: 5              
+            BoxLayout:
+                orientation: 'vertical'
+                ScrollView:
+                    padding: 10
+                    MDList:
+                        padding: 30,0,30,30
+                        Image:
+                            id: imgSrc
+                            pos_hint:{"center_x": .5, "center_y": .005}
+                            source: 'assets/car.png'
+                            keep_ratio: True
+                            size_hint_y: None
+                            height: dp(150)
+                        
+                        MDTextField:
+                            id:company
+                            hint_text: "Company"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            on_focus: if self.focus: root.CompanyMenu.open()
+
+                        MDTextField:
+                            id:model
+                            hint_text: "Model"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            on_focus: root.checkCompany(self, self.focus)
+                            
+                        MDTextField:
+                            id:platenum
+                            hint_text: "Plate Number"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        
+                        MDTextField:
+                            id:policynum
+                            hint_text: "Policy Number"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                                                                        
+                        MDFillRoundFlatButton:
+                            text: "Save"
+                            text_color: "white"
+                            halign: 'center'
+                            font_size: '20sp'
+                            size_hint_x: 0.9
+                            radius: 1,1
+                            on_press: 
+                                root.manager.current='home'
+                                root.manager.transition.direction='left'
+                            on_release: root.saveCarDetails()
+                            
+                        

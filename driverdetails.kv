@@ -1,0 +1,70 @@
+<driverDetails>:
+    name: "driverdetails"
+    GridLayout:
+        cols: 1
+        MDTopAppBar:
+            title: "Driver Details"
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+            
+            elevation: 0
+            md_bg_color:(0/255, 139/255, 199/255)
+            # on_action_button_release: 
+        
+        GridLayout:
+            cols: 1
+            spacing: 5
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                ScrollView:
+                    padding: 10
+                    MDList:
+                        padding: 30,0,30,30
+                        Image:
+                            id: imgSrc
+                            pos_hint:{"center_x": .5, "center_y": .005}
+                            # source: str(app.myImage.source)
+                            source: 'assets/driver.png'
+                            keep_ratio: True
+                            size_hint_y: None
+                            height: dp(150)
+
+                        MDTextField:
+                            id:name
+                            hint_text: "Driver Name"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        MDTextField:
+                            id:address
+                            hint_text: "Address"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        MDTextField:
+                            id:gender
+                            hint_text: "Gender"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        MDTextField:
+                            id: license
+                            hint_text: "License Number"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        MDTextField:
+                            id: contact
+                            hint_text: "Contact Number"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                        
+                        MDFillRoundFlatButton:
+                            text: "Submit"
+                            text_color: "white"
+                            halign: 'center'
+                            font_size: '20sp'
+                            size_hint_x: 0.9
+                            radius:1,1
+                            on_press:
+                                app.root.current="submitted"
+                                root.manager.transition.direction="left"
+                            on_release: root.submit_rep()
+

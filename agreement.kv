@@ -1,0 +1,62 @@
+<Agreement>:
+    name: "agreement"
+    GridLayout:
+        cols:1
+
+        MDTopAppBar:
+            title: "Agreement"
+            
+            elevation: 0
+            md_bg_color:(0/255, 139/255, 199/255)
+
+        GridLayout:
+            cols:1
+            padding: dp(20)
+
+            MDBoxLayout:
+                orientation:'vertical' 
+                padding:10
+
+                MDIcon:
+                    icon: 'handshake'
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    font_size: '110sp'
+                
+            
+            MDBoxLayout:
+                id: letter
+                orientation: 'vertical'
+                            
+            GridLayout:
+                cols:1
+                rows:2
+                padding: 0,20
+                spacing: 5
+
+            # AnchorLayout:
+                MDFillRoundFlatButton:
+                    text: "Agreed"
+                    text_color: "white"
+                    halign: 'center'
+                    font_size: '20sp'
+                    size_hint:1, None
+                    radius:1,1
+                    on_release:
+                        app.show_alert_dialog()
+            # AnchorLayout:
+                MDFillRoundFlatButton:
+                    text: "Disagreed"
+                    text_color: "white"
+                    halign: 'center'
+                    font_size: '20sp'
+                    size_hint:1, None
+                    radius:1,1
+                    on_release:
+                        app.show_alert_dialog()
+               
+
+<Check@MDCheckbox>:
+    group: 'group'
+    size_hint: None, None
+    size: dp(48), dp(48)
+
