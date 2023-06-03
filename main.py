@@ -200,7 +200,9 @@ class Report(Screen):
             "Date":self.ids.date.text,
             "Location":self.ids.location.text,
             "Amount": mycost,
-            "Parts": parts
+            "Parts": parts,
+            "UserID": firebaseauth.userID,
+            "Status": 'Pending'
         }
         
         VADetails.append(VaSpecifics)
@@ -353,6 +355,7 @@ class Home(Screen, MDBoxLayout):
             }
         
         #UPDATE DICTIONARY
+
         image_data=Ckure.performDetections(image_data)
 
         #TO UPDATE IMAGE SOURCE
@@ -383,7 +386,6 @@ class Home(Screen, MDBoxLayout):
         #MOVE TO NEXT PAGE UPON CAPTURING
         screen_manager.transition.direction='left'
         self.manager.current = 'result'
-
 
 #============================================
 # ================CAR DETAILS PAGE================
@@ -587,7 +589,7 @@ class Login(Screen):
             myScr.ids.name.text = myCurrCred.get('name')
             myScr.ids.email.text = myCurrCred.get('email')
             myScr.ids.address.text = myCurrCred.get('address')
-            myScr.ids.contact.text = myCurrCred.get('phone')
+            myScr.ids.contact.text = myCurrCred.get('contact')
             myScr.ids.age.text = myCurrCred.get('age')
             myScr.ids.dob.text = myCurrCred.get('dob')
             myScr.ids.gender.text = myCurrCred.get('gender')
@@ -616,8 +618,9 @@ class Login(Screen):
             self.myCredentials(firebaseauth.userID)
 
         except Exception as e:
+            print(str(e))
             Snackbar(
-                text="Invalid Credentials",
+                text=str(e),
                 snackbar_x="10dp",
                 snackbar_y="10dp",
                 size_hint_x=(Window.width - (10 * 2)) / Window.width
@@ -746,13 +749,16 @@ class Ckure(MDApp):
         reportTime = time.strftime("%d-%m-%Y")
         # self.VAdetails['amount'] = self.total_cost
         user_id = firebaseauth.userID
-        VArec_ref ='users/'+user_id+'/VArecords'
+        VArec_ref ='reports'
         amount = screen_manager.get_screen('result').ids.cost.text
         VADetails[0]['Cost']=amount[4:]
+        firestoredb.reportTime=reportTime
     
         try:
-            print('submitted!')
+            
+            # print('submitted!')
             # ADD INFO ON VARECORD
+            # firestoredb.recordVA(VArec_ref,VADetails[0])
             specifics_ref=firestoredb.db.collection(VArec_ref).document(reportTime).set(VADetails[0])
             # ADD COLLECTION
             driverdtls_ref = firestoredb.db.collection(VArec_ref).document(reportTime).collection('details').document('Driver').set(VADetails[2])
@@ -795,9 +801,18 @@ class Ckure(MDApp):
 					],
 				)
         self.dialog.open()
+
     def close_dialog(self, obj):
+        VArec_ref ='reports'
+        VADetails[0]['Status']='Disagreed'
+        specifics_ref=firestoredb.db.collection(VArec_ref).document(firestoredb.reportTime).set(VADetails[0])
         self.dialog.dismiss()
+
     def proceed(self, obj):
+        VArec_ref ='reports'
+        VADetails[0]['Status']='Agreed'
+        specifics_ref=firestoredb.db.collection(VArec_ref).document(firestoredb.reportTime).set(VADetails[0])
+
         self.dialog.dismiss()
         screen_manager.transition.direction='left'
         screen_manager.current = "success"
@@ -808,7 +823,7 @@ class Ckure(MDApp):
         screen_manager.current='login'
 
     def on_start(self):
-        Clock.schedule_once(self.login, 1)
+        Clock.schedule_once(self.login, 5)
 
     def login(self, *args):
         screen_manager.current = "login"

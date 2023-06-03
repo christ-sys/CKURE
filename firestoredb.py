@@ -9,6 +9,8 @@ cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+reportTime=''
+
 #FETCHING DATA 
 def get_company():
     company=[]
@@ -26,10 +28,16 @@ def get_model(compny):
     return models
 
 
+
 # STORING DATA
 def store_userCar(ref,data):
     userCarRef = db.collection(ref).document('CarInfo').set(data)
         
 def store_userData(ref,data):
     userCarRef = db.collection(ref).document('UserInfo').set(data)
+
+
+
+
+
 
