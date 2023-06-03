@@ -1,0 +1,94 @@
+<Cardetails>:
+    name: "cardetails"
+    MDSliverAppbar:
+        background_color: "#0096c7"
+        MDSliverAppbarHeader:
+            MDRelativeLayout:
+                FitImage:
+                    source: "../assets/ev6.jpg"
+        MDSliverAppbarContent:
+            id: content
+            orientation: "vertical"
+            padding: "12dp"
+            spacing: "12dp"
+            adaptive_height: True
+            AnchorLayout:
+                anchor_x: "right"
+                MDIconButton:
+                    icon: "image"
+                    halign: "right"
+                    rounded: True
+                    md_bg_color:"#90e0ef"
+                    # on_press: root.add_brand()
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "6dp"
+                padding: "12dp", 0, 0, 0
+                pos_hint: {"center_y": .6}
+                MDLabel:
+                    text: "Category"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                MDLabel:
+                    id: category_label
+                    text: "Subtitle text"
+                    theme_text_color: "Hint"
+                    adaptive_height: True
+                MDLabel:
+                    text: "Make"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                MDLabel:
+                    id: make_label
+                    text: "Subtitle text"
+                    theme_text_color: "Hint"
+                    adaptive_height: True
+                MDLabel:
+                    text: "Year"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                MDLabel:
+                    id: year_label
+                    text: "Subtitle text"
+                    theme_text_color: "Hint"
+                    adaptive_height: True
+                MDLabel:
+                    text: "Model"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                MDLabel:
+                    id: model_label
+                    text: "Subtitle text"
+                    theme_text_color: "Hint"
+                    adaptive_height: True
+                MDLabel:
+                    text: "Variant"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                MDLabel:
+                    id: variant_label
+                    text: "Subtitle text"
+                    theme_text_color: "Hint"
+                    adaptive_height: True
+            MDRaisedButton:
+                id: edit
+                text: "Edit"
+                md_bg_color: "#0096c7"
+                mode: "rectangle"
+                elevation: 0
+                size_hint_x:1
+                on_press: root.edit()
+            MDRaisedButton:
+                id: delete
+                text: "Delete"
+                md_bg_color: "red"
+                mode: "rectangle"
+                elevation: 0
+                size_hint_x:1
+                on_press: root.delete()

@@ -1,0 +1,90 @@
+<UserProfile>:
+    name: "userProfile"
+    MDTopAppBar:
+        id: name_title
+        anchor_title: 'center'
+        elevation: 0
+        pos_hint: {"top": 1}
+        md_bg_color:"#0096c7"
+        left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
+        right_action_items:[["account-edit", lambda x : root.edit()]]
+        
+    MDGridLayout:
+        cols:1
+        pos_hint: {"top": .9}
+        md_bg_color:"white"
+        MDCard:
+            size_hint_y: None
+            height: "200dp"
+            orientation: 'vertical'
+            radius: 0
+            AnchorLayout:
+                anchor_x: 'center'
+                FitImage:
+                    size_hint: None, None
+                    width:"130dp"
+                    height: "130dp"
+                    source: '../assets/cat.png'  
+                    radius:100
+        MDGridLayout:
+            cols: 2
+            size_hint_y: None
+            padding: "10dp", "10dp", "10dp", "10dp"
+            height: self.minimum_height
+            MDFlatButton:
+                text: 'Profile'
+                md_bg_color:"#90e0ef"
+                size_hint_x: 1
+                size_hint_y: None
+            MDFlatButton:
+                text: 'Insurance'
+                size_hint_x: 1
+                size_hint_y: None
+            
+        BoxLayout:
+            orientation: 'vertical'
+            ScrollView:
+                MDGridLayout:
+                    cols: 1
+                    spacing: "8dp"
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    size_hint_y: None
+                    height: self.minimum_height + dp(10)
+
+                    OneLineIconListItem:
+                        id: name_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "account"
+                    OneLineIconListItem:
+                        id: email_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "at"
+                    OneLineIconListItem:
+                        id: phone_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "cellphone"
+                    OneLineIconListItem:
+                        id: address_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "home"
+                    OneLineIconListItem:
+                        id: birthday_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "calendar"
+                    OneLineIconListItem:
+                        id: age_label
+                        text: "number"
+                        IconLeftWidget:
+                            icon: "account"
+                    OneLineIconListItem:
+                        id: gender_label
+                        text: ""
+                        IconLeftWidget:
+                            icon: "gender-male-female"
+                
+                

@@ -1,0 +1,21 @@
+<Category>:
+    name: "car_categories"
+    MDTopAppBar:
+        title: "[Car Brand] Categories"
+        elevation: 0
+        pos_hint: {"top": 1}
+        md_bg_color:"#0096c7"
+        left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
+    ScrollView:
+        pos_hint: {"center_x": 0.5, "center_y": 0.38}
+        size_hint: (1,1)
+        GridLayout:
+            id: grid
+            cols: 1
+            height: self.minimum_height
+            size_hint_y: None
+            width: self.minimum_width
+            MDBoxLayout:
+                MDLabel:
+                    id: brand_label
+                    text: ''

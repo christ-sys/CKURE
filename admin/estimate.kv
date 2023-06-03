@@ -1,0 +1,64 @@
+<Estimation>:
+    name: "estimation"
+    MDTopAppBar:
+        title: "DAMAGE COST ESTIMATION"
+        elevation: 0
+        pos_hint: {"top": 1}
+        md_bg_color:(0/255, 139/255, 199/255)
+        left_action_items:[["arrow-left", lambda x : app.back(self.icon)]]
+    ScrollView:
+        pos_hint: {"center_x": 0.5, "center_y": 0.4}
+        GridLayout:
+            spacing: '10dp'
+            padding: '20dp'
+            pos_hint: {"center_x": 0.5, "center_y": 0.7}
+            height:self.minimum_height
+            size_hint_y: None
+            width: self.minimum_width
+            cols: 1
+            MDRectangleFlatButton:
+                id: cars
+                text: "-- Car Brand --"
+                size_hint: .8,None
+                on_press: root.cars_make_name.open()
+                # opacity: 0
+                # disabled:1
+            MDRectangleFlatButton:
+                id: model
+                text: "-- Model --"
+                size_hint: .8,None
+                # on_press: root.models.open()
+                opacity: 1
+            MDRectangleFlatButton:
+                id: part
+                text: "-- Part --"
+                size_hint: .8,None
+                opacity: 1
+            MDRectangleFlatButton:
+                id: severity
+                text: "-- Severity --"
+                size_hint: .8,None
+                opacity: 1
+            MDLabel:
+                text: 'Estimated Damage Cost:'
+                font_size: '16sp'
+                spacing: '20dp'
+            MDTextField:
+                id: min
+                mode:"rectangle"
+                hint_text: "Minimum Cost"
+                size_hint: 1, None
+                height: "10dp"
+            MDTextField:
+                id: max
+                mode:"rectangle"
+                hint_text: "Maximum Cost"
+                size_hint: 1, None
+                height: "10dp"
+    MDFillRoundFlatButton:
+        text: "Save Cost Estimation"
+        text_color: "white"
+        halign: 'center'
+        font_size: '20sp'
+        size_hint_x: 0.9
+        pos_hint: {'center_x': .5, 'center_y': .09}

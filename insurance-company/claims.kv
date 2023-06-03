@@ -1,0 +1,37 @@
+<Claims>:
+    name: "claims"
+    FloatLayout:
+        MDRaisedButton:
+            text: "Print Record"
+            pos_hint: {'center_x': .5, 'center_y': .10}
+            on_release : root.create_table()
+            elevation: 0
+            size_hint_x:1
+            
+    MDTopAppBar:
+        title: "Insurance Claims"
+        elevation: 0
+        pos_hint: {"top": 1}
+        md_bg_color:(0/255, 139/255, 199/255)
+        left_action_items:[["arrow-left", lambda x : app.back(self.icon)]]
+    # MDNavigationLayout:
+    #     ScreenManager:
+    #         id: screen_manager
+            
+    # MDTopAppBar:
+    #     title: "CKURE - ADMIN DASHBOARD"
+    #     elevation: 0
+    #     pos_hint: {"top": 1}
+    #     md_bg_color:"#0096c7"
+    #     left_action_items:
+    #         [['menu', lambda x: nav_drawer.set_state("open")]]
+    # MDNavigationDrawer:
+    #     id: nav_drawer
+    #     radius: (0, 16, 16, 0)
+    #     # md_bg_color:"#caf0f8"
+    #     elevation:3
+    #     ContentNavigationDrawer:
+    #         sm: screen_manager
+    #         nav_drawer: nav_drawer
+
+      
