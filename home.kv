@@ -18,16 +18,7 @@
                 MDLabel:
                     text: 'MY CARS'
                     halign:"center"
-
-            MDBottomNavigationItem:
-                name: 'reports'
-                text: 'Reports'
-                icon: 'file-document'
-                badge_icon: "numeric-5"
-
-                MDLabel:
-                    text: 'ALL CLAIM RECORDS'
-                    halign: 'center'
+                    
             MDBottomNavigationItem:
                 name: 'scan'
                 text: 'Scan'
@@ -47,14 +38,30 @@
                         MDIconButton:
                             icon:'camera'
                             on_press: root.Camera()
-            MDBottomNavigationItem:
-                name: 'claims'
-                text: 'Claims'
-                icon: 'car-emergency'
 
-                MDLabel:
-                    text: 'INSURANCE'
-                    halign: 'center'
+
+            MDBottomNavigationItem:
+                name: 'reports'
+                text: 'Reports'
+                icon: 'file-document'
+                badge_icon: "numeric-5"
+
+                # MDLabel:
+                #     text: 'ALL CLAIM RECORDS'
+                #     halign: 'center'
+                GridLayout:
+                    cols:1
+                    MDList:
+                        id: historyList
+            
+            # MDBottomNavigationItem:
+            #     name: 'claims'
+            #     text: 'Claims'
+            #     icon: 'car-emergency'
+
+            #     MDLabel:
+            #         text: 'INSURANCE'
+            #         halign: 'center'
             MDBottomNavigationItem:
                 name: 'update_profile'
                 text: 'Profile'

@@ -4,6 +4,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager,Screen
 from kivy.clock import Clock
 from kivy.uix.image import Image as rawImage
+from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, ObjectProperty
 from kivymd.app import MDApp
 from kivymd.uix.snackbar import Snackbar
@@ -15,6 +16,7 @@ from kivymd.uix.recycleview import RecycleView
 from kivymd.uix.label import MDLabel
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDRectangleFlatButton,MDRectangleFlatIconButton
+from kivymd.uix.list.list import TwoLineListItem
 
 from kivymd.uix.sliverappbar import *
 from kivymd.icon_definitions import md_icons
@@ -278,16 +280,9 @@ class Home(Screen, MDBoxLayout):
     #HISTORY SCREEN
     def __init__(self, **kw):
         super().__init__(**kw)
-        # panels_data = [
-        #     {"text": "Panel 1 for mahahabang text and di na kasya sa box"},
-        #     {"text": "Panel 2"},
-        #     {"text": "Panel 3"},
-        # ]
-
-        # for i in panels_data:
-        #     self.ids.historyList.add_widget(someCard(text=i["text"]))
-    
-
+        report=firestoredb.get_history(firebaseauth.userID)
+        self.ids.historyList.add_widget(TwoLineListItem(text=report[0],secondary_text ="Vehicular accident at " +report[1]))
+       
     #PROFILE SCREEN
     def calculateAge(self,dob):
         currDate = datetime.now(timezone('Asia/Manila'))
