@@ -34,15 +34,20 @@
                         pos_hint: {"center_x": .5, "center_y": .7}
                         size_hint: None, None
                         size: "320dp", "320dp"
+            
+
+
             MDBottomNavigationItem:
                 name: 'reports'
                 text: 'Reports'
                 icon: 'file-document'
                 badge_icon: "numeric-5"
+                
+                GridLayout:
+                    cols:1
+                    MDList:
+                        id: historyList
 
-                MDLabel:
-                    text: 'ALL CLAIM RECORDS'
-                    halign: 'center'
             MDBottomNavigationItem:
                 name: 'scan'
                 text: 'Scan'
@@ -63,29 +68,6 @@
                             icon:'camera'
                             on_press: root.Camera()
 
-
-            MDBottomNavigationItem:
-                name: 'reports'
-                text: 'Reports'
-                icon: 'file-document'
-                badge_icon: "numeric-5"
-
-                # MDLabel:
-                #     text: 'ALL CLAIM RECORDS'
-                #     halign: 'center'
-                GridLayout:
-                    cols:1
-                    MDList:
-                        id: historyList
-            
-            # MDBottomNavigationItem:
-            #     name: 'claims'
-            #     text: 'Claims'
-            #     icon: 'car-emergency'
-
-            #     MDLabel:
-            #         text: 'INSURANCE'
-            #         halign: 'center'
             MDBottomNavigationItem:
                 name: 'update_profile'
                 text: 'Profile'
@@ -146,12 +128,6 @@
                             id: gender
                             hint_text: "Gender"
                             pos_hint:{"center_x": .5}
-        
-                        # MDTextField:
-                        #     id: password
-                        #     hint_text: "Password"
-                        #     password: True
-                        #     pos_hint:{"center_x": .5}
                         
                         MDRaisedButton:
                             text: "Update"

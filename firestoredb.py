@@ -30,20 +30,13 @@ def get_model(compny):
 
 def get_history(userID):
     data=[]
-    reports = db.collection('reports').get()
+    # reports = db.collection('reports').get()
+    reports = db.collection('reports').where('UserID', '==', userID).get()
 
     for e in reports:
-        if userID == e.get('UserID'):
-            data.append(e.get('Date'))
-            data.append(e.get('Location'))
-
+            data.append([e.get('Date'),e.get('Location')])
+    
     return data
-
-    # for model in model_ref:
-    #     modeldocu = model.to_dict()
-    #     models.append(modeldocu['Model'])
-    # return models
-
 
 
 # STORING DATA

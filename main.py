@@ -28,6 +28,8 @@ from keras.models import load_model  # TensorFlow is required for Keras to work
 import hashlib
 import time
 import numpy as np
+import random
+import string
 
 
 # FILE_IMPORTS
@@ -75,12 +77,12 @@ class Agreement(Screen):
 class Submitted(Screen):
     def update_agreemnt(self):
         print(VADetails)
-        DriverX = VADetails[2].get('Name')
-        time = VADetails[0].get('Time')
-        date =VADetails[0].get('Date')
-        cost=VADetails[0].get('Amount')
-        location =VADetails[0].get('Location')
-        part = VADetails[0].get('Parts')
+        DriverX = VADetails.get('Name')
+        time = VADetails.get('Time')
+        date =VADetails.get('Date')
+        cost=VADetails.get('Amount')
+        location =VADetails.get('Location')
+        part = VADetails.get('Parts')
 
         uname = firebaseauth.userName
 
@@ -114,7 +116,7 @@ class driverDetails(Screen):
             "Gender":self.ids.gender.text,
         }
         
-        VADetails.append(driver)
+        driver.update(VADetails)
         Ckure.on_submit_report(Ckure)
         print("Recorded")
 
@@ -207,8 +209,9 @@ class Report(Screen):
             "Status": 'Pending'
         }
         
-        VADetails.append(VaSpecifics)
-        VADetails.append(CarDetails)
+        VADetails.update(VaSpecifics)
+        VADetails.update(CarDetails)
+        print(VADetails)
         
     def back(self, button):
         screen_manager.transition.direction='right'
@@ -232,7 +235,7 @@ class driverDetails(Screen):
             "Gender":self.ids.gender.text,
         }
         
-        VADetails.append(driver)
+        VADetails.update(driver)
         Ckure.on_submit_report(Ckure)
         print("Recorded")
 
@@ -280,10 +283,6 @@ class Home(Screen, MDBoxLayout):
     #HISTORY SCREEN
     def __init__(self, **kw):
         super().__init__(**kw)
-        
-        report=firestoredb.get_history(firebaseauth.userID)
-        if report:
-            self.ids.historyList.add_widget(TwoLineListItem(text=report[0],secondary_text ="Vehicular accident at " +report[1]))
        
     #PROFILE SCREEN
     def calculateAge(self,dob):
@@ -591,6 +590,13 @@ class Login(Screen):
             myScr.ids.dob.text = myCurrCred.get('dob')
             myScr.ids.gender.text = myCurrCred.get('gender')
 
+            report=firestoredb.get_history(firebaseauth.userID)
+            for e in report:
+                date = e[0]
+                location =e[1]
+                item = TwoLineListItem(text=date, secondary_text="Vehicular accident at " + location)
+                myScr.ids.historyList.add_widget(item)
+
 
     def checkNewUser(self,user_id):
         VArec_ref ='users/'+user_id+'/Account'
@@ -629,7 +635,7 @@ class Login(Screen):
 class Ckure(MDApp):
     image_list= []
     global VADetails
-    VADetails=[]
+    VADetails={}
 
     def build(self):
         global screen_manager
@@ -741,26 +747,26 @@ class Ckure(MDApp):
 
         return data_list
 
+    def generate_objectId(self, length):
+        characters = string.ascii_letters + string.digits
+        random_string = ''.join(random.choice(characters) for _ in range(length))
+        return random_string
+    
     # GENERATE REPORT
     def on_submit_report(self):
         reportTime = time.strftime("%d-%m-%Y")
+        reportID= self.generate_objectId(self, 10)
         # self.VAdetails['amount'] = self.total_cost
         user_id = firebaseauth.userID
         VArec_ref ='reports'
         amount = screen_manager.get_screen('result').ids.cost.text
-        VADetails[0]['Cost']=amount[4:]
+        VADetails['Cost']=amount[4:]
+        # {"Cost":amount[4:]}.update(VADetails)
         firestoredb.reportTime=reportTime
     
         try:
-            
-            # print('submitted!')
-            # ADD INFO ON VARECORD
-            # firestoredb.recordVA(VArec_ref,VADetails[0])
-            specifics_ref=firestoredb.db.collection(VArec_ref).document(reportTime).set(VADetails[0])
-            # ADD COLLECTION
-            driverdtls_ref = firestoredb.db.collection(VArec_ref).document(reportTime).collection('details').document('Driver').set(VADetails[2])
-            cardtls_ref = firestoredb.db.collection(VArec_ref).document(reportTime).collection('details').document('Vehicle').set(VADetails[1])
-
+            #SAVE REPORT TO DB
+            specifics_ref=firestoredb.db.collection(VArec_ref).document(reportID).set(VADetails)
             #SAVE IMAGE TO STORAGE
             storage = firebaseauth.firebase.storage()
 
@@ -807,7 +813,7 @@ class Ckure(MDApp):
 
     def proceed(self, obj):
         VArec_ref ='reports'
-        VADetails[0]['Status']='Agreed'
+        VADetails['Status']='Agreed'
         specifics_ref=firestoredb.db.collection(VArec_ref).document(firestoredb.reportTime).set(VADetails[0])
 
         self.dialog.dismiss()
