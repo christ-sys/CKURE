@@ -3,8 +3,9 @@
     BoxLayout:
         orientation: 'vertical'
         MDTopAppBar:
+            title:"Damage Evaluation"
             elevation: 0
-            right_action_items:[["logout",lambda x : app.logout(self.icon)]]
+            right_action_items:[["power-standby",lambda x : app.logout(self.icon)]]
             md_bg_color:"#323B4E"
         MDBottomNavigation:
             panel_color: "#323B4E"
@@ -15,10 +16,24 @@
                 name: 'home'
                 text: 'Home'
                 icon: 'home'
-                MDLabel:
-                    text: 'MY CARS'
-                    halign:"center"
-
+                MDBoxLayout:
+                    orientation: "vertical"
+                    adaptive_height: True
+                    spacing: "15dp"
+                    padding: "12dp"
+                    pos_hint: {"center_y": .5}
+                    md_bg_color:"#607398"
+                    MDLabel:
+                        text: "Car Body Parts"
+                        font_name: 'fonts/Oswald-Regular.ttf'
+                    MDSmartTile:
+                        radius: 24
+                        box_radius: [0, 0, 24, 24]
+                        box_color: 1, 1, 1, .2
+                        source: "assets/swiper1.png"
+                        pos_hint: {"center_x": .5, "center_y": .7}
+                        size_hint: None, None
+                        size: "320dp", "320dp"
             MDBottomNavigationItem:
                 name: 'reports'
                 text: 'Reports'
@@ -61,7 +76,6 @@
                 icon: 'account'
                 ScrollView:
                     size_hint: (1, 1)
-                    
                     GridLayout:
                         cols: 1
                         spacing: 0
@@ -70,16 +84,17 @@
                         height: self.minimum_height
                         id: ProfileUpdate
                         
-                        
                         AnchorLayout:
                             anchor_x: "center"
-
-
                             size_hint_y: None
-                            MDLabel:
-                                text:"PROFILE"
-                                halign:'center'
-
+                            pos_hint_y:.5
+                            padding: ('0dp', '30dp', '0dp', '20dp')
+                            FitImage:
+                                size_hint: None, None
+                                width:"130dp"
+                                height: "130dp"
+                                source: 'assets/profile.jpeg'  
+                                radius:100
                         MDTextField:
                             id: name
                             hint_text: "Name"
