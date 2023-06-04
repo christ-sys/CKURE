@@ -41,7 +41,6 @@
                 name: 'reports'
                 text: 'Reports'
                 icon: 'file-document'
-                badge_icon: "numeric-5"
                 
                 GridLayout:
                     cols:1
@@ -67,6 +66,14 @@
                         MDIconButton:
                             icon:'camera'
                             on_press: root.Camera()
+            MDBottomNavigationItem:
+                name: 'reports'
+                text: 'Claims'
+                icon: 'file-document'
+                
+                MDLabel:
+                    halign:"center"
+                    text: 'NO DATA AVAILABLE'
 
             MDBottomNavigationItem:
                 name: 'update_profile'

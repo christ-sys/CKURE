@@ -312,7 +312,7 @@ class Home(Screen, MDBoxLayout):
                 "name":self.ids.name.text,
                 "email":self.ids.email.text,
                 "address":self.ids.address.text,
-                "contact":self.ids.contact.text,
+                "phone":self.ids.contact.text,
                 "dob": self.ids.dob.text,
                 "age":self.ids.age.text,
                 "gender":self.ids.gender.text,
@@ -585,7 +585,7 @@ class Login(Screen):
             myScr.ids.name.text = myCurrCred.get('name')
             myScr.ids.email.text = myCurrCred.get('email')
             myScr.ids.address.text = myCurrCred.get('address')
-            myScr.ids.contact.text = myCurrCred.get('contact')
+            myScr.ids.contact.text = myCurrCred.get('phone')
             myScr.ids.age.text = myCurrCred.get('age')
             myScr.ids.dob.text = myCurrCred.get('dob')
             myScr.ids.gender.text = myCurrCred.get('gender')
@@ -741,8 +741,15 @@ class Ckure(MDApp):
         data_list['severity'] = data_severity[2:]
 
         #COST DETECTION
-        costs = {'minor':100,'moderate':10000,'severe':1000000}
-        mycost = costs.get(data_list['severity'].strip(),'0')
+        costs = {'Minor':3000,'Moderate':10000,'Severe':100000}
+        myseverity = data_list['severity'].strip()
+        if (myseverity=='Minor'):
+            mycost = random.randint(100, costs.get(myseverity,'0'))
+        elif (myseverity=='Moderate'):
+            mycost = random.randint(3000, costs.get(myseverity,'0'))
+        elif (myseverity=='Severe'):
+            mycost = random.randint(10000, costs.get(myseverity,'0'))
+
         data_list['cost']=str(mycost)
 
         return data_list

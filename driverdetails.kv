@@ -7,7 +7,7 @@
             left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
             
             elevation: 0
-            md_bg_color:(0/255, 139/255, 199/255)
+            md_bg_color:"#323B4E"
             # on_action_button_release: 
         
         GridLayout:
@@ -63,6 +63,7 @@
                             font_size: '20sp'
                             size_hint_x: 0.9
                             radius:1,1
+                            md_bg_color: "#607398"
                             on_press:
                                 app.root.current="submitted"
                                 root.manager.transition.direction="left"
