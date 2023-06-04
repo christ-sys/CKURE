@@ -1,3 +1,4 @@
+from os import path
 from pyexpat import model
 import firebase_admin
 from firebase_admin import credentials, firestore, auth
@@ -26,6 +27,22 @@ def get_model(compny):
         modeldocu = model.to_dict()
         models.append(modeldocu['Model'])
     return models
+
+def get_history(userID):
+    data=[]
+    reports = db.collection('reports').get()
+
+    for e in reports:
+        if userID == e.get('UserID'):
+            data.append(e.get('Date'))
+            data.append(e.get('Location'))
+
+    return data
+
+    # for model in model_ref:
+    #     modeldocu = model.to_dict()
+    #     models.append(modeldocu['Model'])
+    # return models
 
 
 
