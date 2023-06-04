@@ -280,8 +280,10 @@ class Home(Screen, MDBoxLayout):
     #HISTORY SCREEN
     def __init__(self, **kw):
         super().__init__(**kw)
+        
         report=firestoredb.get_history(firebaseauth.userID)
-        self.ids.historyList.add_widget(TwoLineListItem(text=report[0],secondary_text ="Vehicular accident at " +report[1]))
+        if report:
+            self.ids.historyList.add_widget(TwoLineListItem(text=report[0],secondary_text ="Vehicular accident at " +report[1]))
        
     #PROFILE SCREEN
     def calculateAge(self,dob):
