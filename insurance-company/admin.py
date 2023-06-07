@@ -3,6 +3,7 @@ import os
 import sys
 from datetime import datetime
 
+from kivy.uix.image import Image
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -34,22 +35,26 @@ from kivymd.uix.recycleview import RecycleView
 from kivymd.uix.sliverappbar import *
 from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.spinner import MDSpinner
-from kivymd.uix.tab.tab import *
+from kivymd.uix.tab import *
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.toolbar import MDTopAppBar
 from kivymd.uix.tooltip.tooltip import MDTooltip
-
-sys.path.append('project/imports')
+from kivymd.uix.segmentedcontrol import (
+    MDSegmentedControl, MDSegmentedControlItem
+)
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.toast import toast
+sys.path.append('imports')
 import random
 import string
 from datetime import datetime
-
+from kivymd.uix.bottomnavigation.bottomnavigation import *
 import firebaseauth
 import firestoredb
 import pytz
 
 # Window.size = (350, 630)
-Builder.load_file("login.kv")
+Builder.load_file("admin.kv")
 Builder.load_file("dashboard.kv")
 Builder.load_file("accounts.kv")
 Builder.load_file("userdetails.kv")
@@ -57,35 +62,35 @@ Builder.load_file("car_brand.kv")
 Builder.load_file("car_models.kv")
 Builder.load_file("cars.kv")
 Builder.load_file("cardetails.kv")
-# Builder.load_file("estimate.kv")
 Builder.load_file("claims.kv")
+Builder.load_file("claim_details.kv")
+
+class ContentNavigationDrawer(MDBoxLayout):
+    sm = ObjectProperty()
 class AdminLogin(Screen):
-    email = 'ckure.org@mail.com'
-    def show_password(self,checkbox,value):
-        if value:
-            self.ids.password.password=False
-            self.ids.show_password.text="Hide Password"
-        else:
-            self.ids.password.password=True
-            self.ids.show_password.text="Show Password"
     def verify_admin(self):
         email = self.ids.email.text
         password = self.ids.password.text
         try:
-            # user = firebaseauth.auth.create_user_with_email_and_password(email, password)
             user = firebaseauth.auth.sign_in_with_email_and_password(email, password)
-            # custom_token = firebaseauth.auth.create_custom_token(uid)
-            # user = firebaseauth.auth.sign_in_with_custom_token(custom_token)
-            AdminLogin.email = email
             self.manager.current='dashboard'
-        except Exception as e: 
-            print(e)
-            # dialog = MDDialog(title="Error", text="User Not Found!")
-            # dialog.open()
+        except:
+            self.show_error_dialog()
+
+    def show_error_dialog(self):
+        ok_button = MDFlatButton(text="OK", on_release=self.dismiss_dialog)
+        self.dialog = MDDialog(
+            title="Error",
+            text="INVALID ACCOUNT",
+            buttons=[ok_button]
+        )
+        self.dialog.open()
+    def dismiss_dialog(self, *args):
+        self.dialog.dismiss()
 class Dashboard(Screen):
     current_time = StringProperty()
     def count_users(self):
-        users_col = firestoredb.get_all_users()
+        users_col = firestoredb.insurance_all_users()
         total = len(users_col)
         return str(total)
     def count_claims(self):
@@ -95,34 +100,6 @@ class Dashboard(Screen):
     def date_today(self):
         today = datetime.now().date()
         return str(today)
-class Estimation(Screen):
-    dropdown_item = ObjectProperty(None)
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        car_make = firestoredb.get_make()
-        # car_model = firestoredb.get_car_models(brand)
-        cars = [
-            {
-                "text": f"{cars_make}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{cars_make}": self.make_callback(x)
-                
-            } for cars_make in car_make
-        ]
-        self.cars_make_name = MDDropdownMenu(
-            caller=self.ids.cars,
-            items=cars,
-            width_mult=2.5,
-            elevation=0,
-            max_height=dp(140),
-        )
-        # models
-    def make_callback(self, text_item):
-        self.cars_make_name.dismiss()
-        self.ids.cars.text=text_item
-    def model_callback(self, text_item):
-        pass
 class Brand(Screen):
     def brand(self):
         brands = firestoredb.get_brand()
@@ -182,9 +159,10 @@ class Brand(Screen):
             mode="fill",
             pos_hint={"center_x": 0.5},
         )
+        
         save_button = MDFlatButton(text="Save", on_release=lambda *args: self.save_brand(brand_textfield, cat_textfield, model_textfield, year_textfield, variant_textfield, dialog))
         dialog = MDDialog(
-            title="Add Brand",
+            title="Add Car",
             type="custom",
             content_cls=MDBoxLayout(orientation="vertical", spacing="18dp", size_hint_y=None, height="320dp"),
             buttons=[save_button],
@@ -226,6 +204,8 @@ class Brand(Screen):
         dialog.dismiss()
         self.reload_page()
         self.show_snackbar("Added Successfully")
+        # self.manager.transition.direction='left'
+        # self.manager.current = "cardetails"
     def show_snackbar(self, text):
         snackbar = Snackbar(text=text, duration=2.5)
         snackbar.open()
@@ -255,7 +235,7 @@ class Model(Screen):
 
     def on_model_selected(self, model_item):
         brand_id = self.selected_brand
-        model = model_item.text  
+        model = model_item.text
         models_screen = self.manager.get_screen("car_models")
         cars = firestoredb.get_cars(brand_id, model)
         cars_screen = self.manager.get_screen("cars")
@@ -272,7 +252,7 @@ class Model(Screen):
 class Cars(Screen):
     def initialize_cars(self, cars):
         layout = GridLayout(cols=1,size_hint_y=None)
-        layout.bind(minimum_height=layout.setter('height')) 
+        layout.bind(minimum_height=layout.setter('height'))  
         
         for car in cars:
             make = car.get('Make', '')
@@ -294,7 +274,7 @@ class Cars(Screen):
         grid.clear_widgets()
         grid.add_widget(scrollview)
     def on_car_selected(self, car_item):
-        object_id = car_item.object_id  
+        object_id = car_item.object_id
         brand_id = self.manager.get_screen('car_models').selected_brand
         car = firestoredb.get_car_by_id(brand_id,object_id)
         cardetails_screen = self.manager.get_screen("cardetails")
@@ -320,6 +300,13 @@ class Cardetails(Screen):
             )
         )
         self.add_widget(self.app_bar)
+        Window.bind(on_keyboard=self.events)
+        self.manager_open = False
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager, select_path=self.select_path,ext=[".png", ".jpg", ".jpeg"]
+        )
+    def on_select(self, instance, value):
+        print(f"Selected option: {value}")
     car = None  # Define the car attribute
     def display_car(self, car):
         self.car = car  
@@ -341,14 +328,14 @@ class Cardetails(Screen):
             hint_text="Model",
             mode="fill",
             pos_hint={"center_x": 0.5},
-            text=self.car.get('Model', '') 
+            text=self.car.get('Model', '')  
         )
         year_textfield = MDTextField(
             id="year_textfield",
             hint_text="Year",
             mode="fill",
             pos_hint={"center_x": 0.5},
-            text=str(self.car.get('Year', ''))
+            text=str(self.car.get('Year', ''))  
         )
         variant_textfield = MDTextField(
             id="variant_textfield",
@@ -388,6 +375,59 @@ class Cardetails(Screen):
         firestoredb.update_car(brand_id, object_id, self.car)
         dialog.dismiss()
         self.show_snackbar("Details Updated Successfully")
+    def add_parts(self):
+        part_textfield = MDTextField(
+            hint_text="Car Part",
+            mode="fill",
+            pos_hint={"center_x": 0.5},
+        )
+        cost_textfield = MDTextField(
+            hint_text="Estimated Cost",
+            mode="fill",
+            pos_hint={"center_x": 0.5},
+        )
+        
+        save_button = MDFlatButton(text="Save", on_release=lambda *args: self.save_parts(part_textfield, cost_textfield, dialog))
+        dialog = MDDialog(
+            title="Add Car Body Part",
+            type="custom",
+            content_cls=GridLayout(cols=2, spacing="18dp", size_hint_y=None),
+            buttons=[save_button],
+        )
+
+        dialog.content_cls.add_widget(part_textfield)
+        dialog.content_cls.add_widget(cost_textfield)
+        dialog.open()
+
+    def save_parts(self, part_textfield, cost_textfield, dialog):
+        car_part = part_textfield.text.strip()
+        estimated_cost = cost_textfield.text.strip()
+
+        if not car_part or not estimated_cost:
+            # Perform validation and display an error message if necessary
+            return
+
+        # Get the brand, document ID, and car ID
+        brand_id = self.manager.get_screen('car_models').selected_brand
+        doc_id = self.car['objectId']
+        # car_id = f"{doc_id}_{car_part}"  # Generate a unique ID for the car part
+        car_id = car_part
+        # Create the car part data
+        car_part_data = {
+            "Part": car_part,
+            "EstimatedCost": int(estimated_cost),
+            "createdAt": datetime.now(),
+            "updatedAt": datetime.now()
+        }
+
+        # Save the car part to Firestore
+        car_part_ref = firestoredb.db.collection("cars").document(brand_id).collection("data").document(doc_id).collection("body_parts").document(car_id)
+        car_part_ref.set(car_part_data)
+
+        dialog.dismiss()
+        self.show_snackbar("Car body part added successfully!")
+        # self.reload_page()  # Reload the page to display the new car part
+
     def delete(self):
         confirm_dialog = MDDialog(
             title="Confirm Delete",
@@ -404,7 +444,22 @@ class Cardetails(Screen):
             ],
         )
         confirm_dialog.open()
+    def file_manager_open(self):
+        self.file_manager.show(os.path.expanduser("~"))  # output manager to the screen
+        self.manager_open = True
+    def select_path(self, path: str):
+        self.exit_manager()
+        toast(path)
+    def exit_manager(self, *args):
+        self.manager_open = False
+        self.file_manager.close()
 
+    def events(self, instance, keyboard, keycode, text, modifiers):
+        '''Called when buttons are pressed on the mobile device.'''
+        if keyboard in (1001, 27):
+            if self.manager_open:
+                self.file_manager.back()
+        return True
     def delete_car(self, confirm_dialog):
         brand_id = self.manager.get_screen('car_models').selected_brand
         object_id = self.car['objectId']
@@ -421,10 +476,81 @@ class Cardetails(Screen):
         self.manager.transition.direction='right'
         self.manager.current = "cars"
 class Claims(Screen):
-    pass
+    def count_claims(self):
+        claims_col = firestoredb.get_claims()
+        total = len(claims_col)
+        return str(total)
+    def approved_claims(self):
+        claims_col = firestoredb.get_approved_claims()
+        total = len(claims_col)
+        return str(total)
+    def on_pre_enter(self):
+        claims = firestoredb.get_all_claims()
+        claims_list = self.ids.pending
+        claims_list.clear_widgets()
+        approved_list = self.ids.approved_claim
+        approved_list.clear_widgets()
+        ph_tz = pytz.timezone('Asia/Manila')
+        for claim in claims:
+            claimant_text = "Claimant: " + str(claim['claimant'])
+            claim_id_text = "Claim ID: " + str(claim['id'])
+            date_text = "Date & Time: " + str(claim['date'].astimezone(ph_tz).strftime("%B %d, %Y at %I:%M:%S %p"))
+            if claim['approved'] == False:
+                item = ThreeLineRightIconListItem(text=claimant_text, secondary_text=claim_id_text, tertiary_text=date_text)
+                item.add_widget(IconRightWidget(icon="chevron-right"))
+                item.bind(on_release=lambda x, claim_id=claim['id']: self.on_select(claim_id))
+                claims_list.add_widget(item)
+            elif claim['approved'] == True:
+                item = ThreeLineRightIconListItem(text=claimant_text, secondary_text=claim_id_text, tertiary_text=date_text)
+                approved_list.add_widget(item)
+    def on_select(self, claim_id):
+        app = MDApp.get_running_app()
+        app.root.current = 'claimDetails'
+        app.root.get_screen('claimDetails').claim_details(claim_id)
+        
+class ClaimDetails(Screen):
+    def __init__(self, **kwargs):
+        super(ClaimDetails, self).__init__(**kwargs)
+        self.claim_data = {}
+        self.claim_id = None
+    def claim_details(self, claim_id):
+        self.claim_id = claim_id
+        self.claim_data = firestoredb.get_claim_details(claim_id)
+        self.claim_labels()
+    def claim_labels(self):
+        ph_tz = pytz.timezone('Asia/Manila')
+        claimant_label = self.ids.claimant_label
+        date_label = self.ids.date_label
+        title = self.ids.title
+        title.title = self.claim_data.get('claimant', '')
+        claimant_label.secondary_text = self.claim_data.get('claimant', '')
+        date_label.secondary_text = str(self.claim_data.get('date', '').astimezone(ph_tz).strftime("%B %d, %Y at %I:%M:%S %p"))
+    
+    def approve(self):
+        # Retrieve the claim by ID
+        claim_ref = firestoredb.db.collection('claims').document(self.claim_id)
+        claim = claim_ref.get().to_dict()
+
+        # Update the approved value for the claim
+        claim['approved'] = True
+
+        # Save the updated claim to the database
+        claim_ref.set(claim)
+        self.show_snackbar("Claim Approved")
+        self.manager.transition.direction='right'
+        self.manager.current = "claims"
+        # self.ids.claims_counts.text = self.count_claims()
+        # self.ids.approved_claims.text = self.approved_claims()
+    def show_snackbar(self, text):
+        snackbar = Snackbar(text=text, duration=2.5)
+        snackbar.open()
+        
+    def back(self, button):
+        self.manager.transition.direction='right'
+        self.manager.current = "claims"
 class Accounts(Screen):
     def on_pre_enter(self):
-        users = firestoredb.get_all_users()
+        users = firestoredb.insurance_all_users()
         user_list = self.ids.user_list
         user_list.clear_widgets()
         for user in users:
@@ -441,6 +567,7 @@ class UserProfile(Screen):
         self.dialog = None
         self.user_data = {}
         self.user_id = None
+        
 
     def show_user_profile(self, user_id):
         self.user_id = user_id
@@ -520,8 +647,6 @@ class UserProfile(Screen):
         self.dialog.dismiss()
         self.show_snackbar("User Details Updated Successfully")
         self.update_labels()
-
-
     def update_labels(self):
         name_title = self.ids.name_title
         name_label = self.ids.name_label
@@ -533,46 +658,41 @@ class UserProfile(Screen):
         phone_label = self.ids.phone_label
 
         name_title.title = self.user_data.get('name', '')
-        name_label.text = self.user_data.get('name', '')
-        email_label.text = self.user_data.get('email', '')
-        age_label.text = self.user_data.get('age', '')
-        address_label.text = self.user_data.get('address', '')
-        birthday_label.text = self.user_data.get('dob', '')
-        gender_label.text = self.user_data.get('gender', '')
-        phone_label.text = self.user_data.get('phone', '')
-
-
+        name_label.secondary_text = self.user_data.get('name', '')
+        email_label.secondary_text = self.user_data.get('email', '')
+        age_label.secondary_text = self.user_data.get('age', '')
+        address_label.secondary_text = self.user_data.get('address', '')
+        birthday_label.secondary_text = self.user_data.get('dob', '')
+        gender_label.secondary_text = self.user_data.get('gender', '')
+        phone_label.secondary_text = self.user_data.get('phone', '')
     def show_snackbar(self, text):
         snackbar = Snackbar(text=text, duration=2.5)
         snackbar.open()
     def back(self, button):
         self.manager.transition.direction='right'
         self.manager.current = "accounts"
-class ContentNavigationDrawer(MDBoxLayout):
-    sm = ObjectProperty()
 class AdminApp(MDApp):
     def build(self):
-        self.title = "ABC - Insurance"
+        self.title = "Insurance"
         global screen_manager
-        screen_manager = ScreenManager()
+        screen_manager = Factory.ScreenManager()
         screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
         screen_manager.add_widget(AdminLogin(name='adminLogin'))
         screen_manager.add_widget(Dashboard(name='dashboard'))
-        # screen_manager.add_widget(Estimation(name='estimation'))
         screen_manager.add_widget(Brand(name="car_brand"))
         screen_manager.add_widget(Model(name="car_models"))
         screen_manager.add_widget(Cars(name="cars"))
         screen_manager.add_widget(Cardetails(name="cardetails"))
         screen_manager.add_widget(Claims(name='claims'))
+        screen_manager.add_widget(ClaimDetails(name='claimDetails'))
         screen_manager.add_widget(Accounts(name='accounts'))
         screen_manager.add_widget(UserProfile(name='userProfile'))
         self.theme_cls.theme_style = "Light"
         return screen_manager
     def on_start(self):
-        Clock.schedule_once(self.login, 12)
+        Clock.schedule_once(self.login, 8)
     def login(self, *args):
         screen_manager.current = "adminLogin"
-    
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "dashboard"
@@ -580,8 +700,5 @@ class AdminApp(MDApp):
         screen_manager.get_screen('adminLogin').ids.email.text = ''
         screen_manager.get_screen('adminLogin').ids.password.text = ''
         screen_manager.current='adminLogin'
-    # AUTO RELOAD
-    AUTORELOADER_PATHS = [
-        (".",{"recursive": True})
-    ]
-AdminApp().run()
+if __name__ == "__main__":
+    AdminApp().run()
