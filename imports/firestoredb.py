@@ -2,7 +2,7 @@ import firebase_admin
 from google.cloud import firestore
 from firebase_admin import credentials, firestore, auth
 from datetime import datetime
-cred = credentials.Certificate("project/serviceAccountKey.json")
+cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 email="ckure.org@mail.com"
@@ -26,11 +26,15 @@ def get_all_users():
         user_data['id'] = doc.id
         users.append(user_data)
     return users
-def all_users():
-    users_ref = db.collection('users')
-    users_docs = users_ref.stream()
-    users = [user.to_dict() for user in users_docs]  
-    return users
+def insurance_all_users():
+    users = []
+    docs = db.collection('users').get()
+    for doc in docs:
+        user_data = doc.to_dict()
+        user_data['id'] = doc.id
+        users.append(user_data)
+    insured_users = [user for user in users if user.get('insured') == True] # Filter users where insured == true
+    return insured_users
 def get_user_details(userid):
     doc_ref = db.collection('users').document(userid)
     doc_snapshot = doc_ref.get()
@@ -39,7 +43,7 @@ def get_user_details(userid):
         return user_details
 def update_user_details(user_id, user_data):
     user_ref = db.collection("users").document(user_id)
-    user_ref.set(user_data)  
+    user_ref.set(user_data)  # Update the car data in Firestore
     return user_data
 # print(get_user_details("59oe6qF2LoRFtgPqQhEejzJtKeP2"))
 def export_users_to_csv(users, filename):
@@ -59,6 +63,12 @@ def get_all_reports():
         report_data['id'] = doc.id
         reports.append(report_data)
     return reports
+def get_claim_details(claimid):
+    doc_ref = db.collection('claims').document(claimid)
+    doc_snapshot = doc_ref.get()
+    if doc_snapshot.exists:
+        claim_details = doc_snapshot.to_dict()
+        return claim_details
 def get_all_claims():
     claims = []
     docs = db.collection('claims').get()
@@ -67,13 +77,50 @@ def get_all_claims():
         claim_data['id'] = doc.id
         claims.append(claim_data)
     return claims
+def get_all_reports():
+    reports = []
+    docs = db.collection('reports').get()
+    for doc in docs:
+        report_data = doc.to_dict()
+        report_data['id'] = doc.id
+        reports.append(report_data)
+    return reports
 def export_reports_to_csv(reports, filename):
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=reports[0].keys())
         writer.writeheader()
         for report in reports:
             writer.writerow(report)
-
+def get_claims():
+    claims_ref = db.collection('claims')
+    query = claims_ref.where('approved', '==', False)
+    claims_docs = query.stream()
+    claim_pending = [claim.id for claim in claims_docs]
+    return claim_pending
+def get_approved_claims():
+    claims_ref = db.collection('claims')
+    query = claims_ref.where('approved', '==', True)
+    claims_docs = query.stream()
+    claim_approved = [claim.id for claim in claims_docs]
+    return claim_approved
+def get_reports():
+    claims_ref = db.collection('reports')
+    query = claims_ref.where('Status', '==', "Pending")
+    claims_docs = query.stream()
+    claim_pending = [claim.id for claim in claims_docs]
+    return claim_pending
+def get_approved_reports():
+    reports_ref = db.collection('reports')
+    query = reports_ref.where('Status', '==', "Approved")
+    reports_docs = query.stream()
+    report_approved = [report.id for report in reports_docs]
+    return report_approved
+def get_report_details(report_id):
+    doc_ref = db.collection('reports').document(report_id)
+    doc_snapshot = doc_ref.get()
+    if doc_snapshot.exists:
+        report_details = doc_snapshot.to_dict()
+        return report_details
 # reports = get_all_reports()
 # export_reports_to_csv(reports, 'reports.csv')
 def get_vehicle():
@@ -86,15 +133,6 @@ def get_brand():
     cars_docs = cars_ref.stream()
     car_brand = [car.id for car in cars_docs]
     return car_brand
-# def get_category(brand_id):
-#     categories_ref = db.collection("cars").document(brand_id).collection("data")
-#     categories = []
-#     for doc in categories_ref.stream():
-#         category_data = doc.to_dict()
-#         category = category_data.get("Category")
-#         if category:
-#             categories.append(category)
-#     return categories
 def get_model(brand_id):
     models_ref = db.collection("cars").document(brand_id).collection("data")
     model_counts = {}
@@ -123,9 +161,10 @@ def update_car(brand_id, object_id, car_data):
     car_ref = db.collection("cars").document(brand_id).collection("data").document(object_id)
     car_ref.set(car_data)  # Update the car data in Firestore
     return car_data
+
 def delete_car(brand_id, object_id):
     car_ref = db.collection("cars").document(brand_id).collection("data").document(object_id)
-    car_ref.delete()  
+    car_ref.delete()  # Delete the car document from Firestore
 
 ###############################################
 def get_severity(brand, model, part):

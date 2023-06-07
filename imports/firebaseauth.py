@@ -11,7 +11,7 @@ firebaseConfig = {
   "messagingSenderId": "379512987829",
   "appId": "1:379512987829:web:02d01cfa08a1186bea5efc",
   "measurementId": "G-M4RNLKWGW7",
-  "serviceAccount": "project/serviceAccountKey.json"
+  "serviceAccount": "serviceAccountKey.json"
 }
 
 firebase = pyrebase.initialize_app(firebaseConfig)
