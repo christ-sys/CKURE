@@ -1,0 +1,131 @@
+<Dashboard>:
+    name:'dashboard'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: "10dp", "10dp", "10dp", "10dp"
+        MDRelativeLayout:
+            FitImage:
+                source: "assets/pnp.png"
+            MDCard:
+                md_bg_color:"white"
+                opacity:.9
+            ScrollView:
+                pos_hint: {"center_x": 0.5, "center_y": 0.4}
+                GridLayout:
+                    id: grid
+                    spacing: '10dp'
+                    padding: '20dp'
+                    cols: 2
+                    pos_hint: {"center_x": 0.5, "center_y": 0.7}
+                    height:self.minimum_height
+                    size_hint_y: None
+                    width: self.minimum_width
+                    CustomCard:
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            MDIcon:
+                                font_size: '80dp'
+                                icon: "file"
+                                pos_hint: {"center_x": .47, "center_y": .5}
+                                badge_icon: "numeric-"+root.count_reports()
+                                badge_bg_color: "#323B4E"
+                            MDLabel:
+                                font_size: '18dp'
+                                bold: True
+                                text: "Total Reports"
+                                halign: 'center'
+                    # CustomCard:
+                    #     MDIcon:
+                    #         font_size: '80dp'
+                    #         icon: "account"
+                    #         pos_hint: {"center_x": .47, "center_y": .5}
+                    #         badge_icon: "numeric-"+root.count_users()
+                    #         badge_bg_color: "#323B4E"
+                    #     MDLabel:
+                    #         font_size:'18dp'
+                    #         bold: True
+                    #         text: "Registered Drivers" 
+                    #         halign: 'center'
+    MDNavigationLayout:
+        ScreenManager:
+            id: screen_manager
+            
+    MDTopAppBar:
+        title: "PNP DASHBOARD"
+        elevation: 0
+        pos_hint: {"top": 1}
+        md_bg_color:"#323B4E"
+        left_action_items:
+            [['menu', lambda x: nav_drawer.set_state("open")]]
+    MDNavigationDrawer:
+        id: nav_drawer
+        radius: (0, 16, 16, 0)
+        # md_bg_color:"#caf0f8"
+        elevation:3
+        ContentNavigationDrawer:
+            sm: screen_manager
+            nav_drawer: nav_drawer
+            
+
+<ContentNavigationDrawer>:
+    BoxLayout:
+        orientation: "vertical"
+        MDRelativeLayout:
+            AnchorLayout:
+                anchor_x: 'center'
+                FitImage:
+                    source: "assets/pnp.png"
+                    size_hint: None, None
+                    width:"125dp"
+                    height: "180dp"
+        ScrollView:
+            size_hint: (1, 1)
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                OneLineIconListItem:
+                    text: "Dashboard"
+                    on_press:
+                        root.nav_drawer.set_state("close")
+                        app.root.current="dashboard"
+                    IconLeftWidget:
+                        icon:"view-dashboard"
+                OneLineIconListItem:
+                    text: "Reports"
+                    on_press:
+                        root.nav_drawer.set_state("close")
+                        app.root.current="reports"
+                    IconLeftWidget:
+                        icon:"file"
+                # OneLineIconListItem:
+                #     text: "Accounts"
+                #     on_press:
+                #         root.nav_drawer.set_state("close")
+                #         app.root.current="accounts"
+                #     IconLeftWidget:
+                #         icon:"account"
+        MDFloatingActionButton:
+            text:"logout"
+            icon: "power-standby"
+            icon_color:"black"
+            md_bg_color:0,0,0,0
+            pos_hint: {'center_x': 0.85, 'center_y': 0.8}
+            elevation: 0
+            on_press: app.logout()
+        MDLabel:
+            text: 'Logout'
+            font_size: '12dp'
+            pos_hint: {'center_x': 0.88, 'center_y': 0.85}
+            theme_text_color:"Custom"
+            text_color:"#5a5a5a"
+            size_hint: .2,0.01
+<CustomCard@MDCard>:
+    orientation: 'vertical'
+    padding: '8dp'
+    height: '210dp'
+    border_radius: 20
+    radius: [15]
+    size_hint: .9,None
+    md_bg_color:"#caf0f8"
+    

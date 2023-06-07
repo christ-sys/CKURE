@@ -1,0 +1,76 @@
+<Reports>:
+    name: "reports"
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title:"Reports"
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            left_action_items:
+                [['menu', lambda x: nav_drawer.set_state("open")]]
+        MDBottomNavigation:
+            panel_color: "#323B4E"
+            text_color_active: "lightgrey"
+
+            MDBottomNavigationItem:
+                name: 'pending'
+                text: 'New Reports'
+                id: pending_count
+                icon: 'account'
+                badge_icon:"numeric-"+root.count_reports()
+                
+                
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "10dp"
+                    MDRelativeLayout:
+                        FitImage:
+                            source: "assets/pnp.png"
+                        MDCard:
+                            md_bg_color:"white"
+                            opacity:.9
+                        ScrollView:
+                            size_hint: (1,1)
+                            MDGridLayout:
+                                cols: 1
+                                id: pending
+                                size_hint_y: None
+                                height: self.minimum_height + dp(10)
+                                radius: [10,10,0,0]
+            MDBottomNavigationItem:
+                name: 'approved'
+                id: approved_count
+                text: 'APPROVED REPORTS'
+                icon: 'file-document'
+                badge_icon:"numeric-"+root.approved_reports()
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "10dp"
+                    MDRelativeLayout:
+                        FitImage:
+                            source: "assets/pnp.png"
+                        MDCard:
+                            md_bg_color:"white"
+                            opacity:.9
+                        ScrollView:
+                            size_hint: (1,1)
+                            MDGridLayout:
+                                cols: 1
+                                id: approved_report
+                                size_hint_y: None
+                                height: self.minimum_height + dp(10)
+                                radius: [10,10,0,0]
+    MDNavigationLayout:
+        ScreenManager:
+            id: screen_manager
+        MDNavigationDrawer:
+            id: nav_drawer
+            z_index: 1
+            radius: (0, 16, 16, 0)
+            ContentNavigationDrawer:
+                sm: screen_manager
+                nav_drawer: nav_drawer
+
+      
