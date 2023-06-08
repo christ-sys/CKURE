@@ -1,0 +1,77 @@
+<ReportDetails>:
+    name: "reportDetails"
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            id: title
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            use_overflow: True
+            left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
+            # right_action_items:[["check-underline",lambda x : root.approve()]]
+        BoxLayout:
+            orientation: 'vertical'
+            ScrollView:
+                size_hint: (1,1)
+                MDGridLayout:
+                    cols: 1
+                    spacing: "8dp"
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    size_hint_y: None
+                    height: self.minimum_height + dp(10)
+
+                    TwoLineIconListItem:
+                        id: name_label
+                        text:"Name"
+                        secondary_text: ""
+                        IconLeftWidget:
+                            icon: "account"
+                    TwoLineIconListItem:
+                        id: time_label
+                        text:"Time of the Report"
+                        secondary_text: ""
+                        IconLeftWidget:
+                            icon: "clock"
+            
+                    GridLayout:
+                        cols:2
+                        spacing: dp(18)
+                        valign: 'center'
+                            
+                        MDSmartTile:
+                            radius: 24
+                            box_radius: [0, 0, 24, 24]
+                            box_color: 1, 1, 1, .2
+                            source: "./assets/cat.png"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                            size_hint: 1, None
+                            size: "150dp", "150dp"
+                            on_press: root.show_confirmation_dialog()
+
+                            TwoLineListItem:
+                                id: pricing
+                                text: "[color=#ffffff][b]Front Bumper[/b][/color]"
+                                secondary_text: "[color=#808080][b]Php. 3000[/b][/color]"
+                                pos_hint: {"center_y": .5}
+                                _no_ripple_effect: True
+
+<Content>:
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "200dp"
+    MDTextField:
+        id: rtype
+        hint_text: "Repair Type"
+        on_focus: if self.focus: root.repairMenu.open()
+
+    MDTextField:
+        id: lcost
+        hint_text: "Labor Cost"
+        text:"0"
+   
+    MDTextField:
+        id: rcost
+        hint_text: "Replacement Cost"
+        text:"0"
