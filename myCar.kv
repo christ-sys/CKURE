@@ -1,0 +1,111 @@
+<MyCar>:
+    name:"myCar"
+    MDSliverAppbar:
+        background_color: "#323B4E"
+        MDSliverAppbarHeader:
+            MDRelativeLayout:
+                FitImage:
+                    source: "assets/ev6.jpg"
+        MDSliverAppbarContent:
+            id: content
+            orientation: "vertical"
+            padding: "12dp"
+            spacing: "12dp"
+            adaptive_height: True
+            AnchorLayout:
+                anchor_x: "right"
+                MDIconButton:
+                    icon: "image"
+                    halign: "right"
+                    rounded: True
+                    md_bg_color:"#90e0ef"
+                    # on_press: root.add_brand()
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "6dp"
+                padding: ("0dp", "12dp","0dp","0dp",)
+                pos_hint: {"center_y": .4}
+                Fields:
+                    # COMMERCIAL OR PRIVATE
+                    id: vehicle_type
+                    hint_text: "TYPE OF USE:"
+                    icon_left: "file-outline"
+                Fields:
+                    id:file_no
+                    hint_text: "MV FILE NO."
+                    icon_left: "file-outline"
+                Fields:
+                    id:plate_no
+                    hint_text: "PLATE NO."
+                    icon_left: "file-outline"
+                Fields:
+                    id:engine
+                    hint_text: "ENGINE/MOTOR NO."
+                    icon_left: "file-outline"
+                Fields:
+                    id:chassis
+                    hint_text: "SERIAL/CHASSIS NO."
+                    icon_left: "file-outline"
+                Fields:
+                    id:denomination
+                    hint_text: "DENOMINATION"
+                    icon_left: "car-outline"
+                Fields:
+                    id:piston
+                    hint_text: "PISTON DISPLACEMENT"
+                    icon_left: "piston"
+                Fields:
+                    id:cylinders
+                    hint_text: "NO. OF CYLINDERS"
+                    icon_left: "gas-cylinder"
+                Fields:
+                    id:fuel
+                    hint_text: "FUEL"
+                    icon_left: "fuel"
+        
+                Fields:
+                    id:model
+                    hint_text: "MODEL/SERIES"
+                Fields:
+                    id:year
+                    hint_text: "YEAR MODEL"
+                    
+                Fields:
+                    id:body_type
+                    hint_text: "BODY TYPE"
+                
+                Fields:
+                    id:color
+                    hint_text: "COLOR"
+                Fields:
+                    id:grosswt
+                    hint_text: "GROSS WT."
+                    text:""
+                Fields:
+                    id:netwt
+                    hint_text: "NET WT."
+                    text:""
+                Fields:
+                    id:shppngwt
+                    hint_text: "SHIPPING WT."
+                    text:""
+                Fields:
+                    id:netcap
+                    hint_text: "NET CAPACITY"
+                    text:""
+            MDRaisedButton:
+                id: edit
+                text: "Edit"
+                md_bg_color: "#607398"
+                mode: "rectangle"
+                elevation: 0
+                size_hint_x:1
+                on_press: root.updateCarInfo()
+<Fields@MDTextField>:
+    # mode: "rectangle"
+    line_color_normal:"#607398"
+    width: dp(10)
+    size_hint: 1, None
+    height: "10dp"
+                        

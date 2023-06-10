@@ -1,0 +1,139 @@
+<Report>:
+    name: "createReport"
+    GridLayout:
+        cols: 1
+        MDTopAppBar:
+            title: "Vehicular Accident Report"
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+            elevation: 0
+            md_bg_color:"#323B4E"
+        GridLayout:
+            cols: 1 
+            spacing: '10dp'
+            BoxLayout:
+                orientation: 'vertical'
+                ScrollView:
+                    padding: 5
+                    MDList:
+                        padding: 20,0,20,20
+                        Image:
+                            id: imgSrc
+                            pos_hint:{"center_x": .5, "center_y": .005}
+                            source: 'assets/car.png'
+                            keep_ratio: True
+                            size_hint_y: None
+                            height: dp(150)
+                        MDTextField:
+                            id: date
+                            text: root.current_date
+                            hint_text: "Date"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:time
+                            text: root.current_time
+                            hint_text: "Time"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:location
+                            hint_text: "Location of accident"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDLabel:
+                            text: 'Suspect/Driver'
+                            font_style: 'H6'
+                            padding: ('0dp', '20dp', '0dp', '20dp')
+                        MDTextField:
+                            id:accused_name
+                            hint_text: "Name"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:accused_address
+                            hint_text: "Address"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            helper_text: "Barangay, Municipality"
+                            helper_text_mode: "on_focus"
+                            required: True
+                        MDTextField:
+                            id:accused_age
+                            hint_text: "Age"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:accused_gender
+                            hint_text: "Gender"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:licensenum
+                            hint_text: "License No."
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDLabel:
+                            text: 'Vehicle Details'
+                            font_style: 'H6'
+                            padding: ('0dp', '20dp', '0dp', '20dp')
+                        MDTextField:
+                            id:vehicle
+                            hint_text: "Vehicle"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            helper_text: "Brand, Model"
+                            helper_text_mode: "on_focus"
+                            required: True
+                        MDTextField:
+                            id:platenum
+                            hint_text: "Plate No."
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDLabel:
+                            text: 'Witness'
+                            font_style: 'H6'
+                            padding: ('0dp', '20dp', '0dp', '20dp')
+                        MDTextField:
+                            id:witness_name
+                            hint_text: "Name"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:witness_address
+                            hint_text: "Address"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:witness_age
+                            hint_text: "Age"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDTextField:
+                            id:witness_gender
+                            hint_text: "Gender"
+                            helper_text_mode: "persistent"
+                            width: dp(10)
+                            required: True
+                        MDRaisedButton:
+                            text: "Submit Report"
+                            text_color: "white"
+                            halign: 'center'
+                            font_size: '20sp'
+                            size_hint_x: 0.9
+                            radius: 1,1
+                            elevation: 0
+                            md_bg_color: "#607398"
+                            on_press: root.submitreport()
+                            
+                        

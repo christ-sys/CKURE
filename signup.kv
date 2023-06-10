@@ -42,7 +42,10 @@
 
                 MDTextField:
                     id: name
-                    hint_text: "Name"
+                    hint_text: "Name*"
+                    icon_left:"account"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
@@ -51,8 +54,35 @@
                     text_color_normal:"white"
                     helper_text_color_focus: "white"
                 MDTextField:
+                    id: license
+                    hint_text: "Driver's License*"
+                    required: True
+                    icon_left:"license"
+                    error_color: (111/255,168/255,220/255)
+                    pos_hint:{"center_x": .5}
+                    hint_text_color_normal:"white"
+                    hint_text_color_focus:"white"
+                    line_color_normal: "white"
+                    line_color_focus: "white"
+                    text_color_normal:"white"
+                    helper_text_color_focus: "white"
+                MDTextField:
+                    id: business
+                    hint_text: "Business or Profession"
+                    pos_hint:{"center_x": .5}
+                    icon_left: "account"
+                    hint_text_color_normal:(111/255,168/255,220/255)
+                    hint_text_color_focus:"white"
+                    line_color_normal: (111/255,168/255,220/255)
+                    line_color_focus: (111/255,168/255,220/255)
+                    text_color_normal:(111/255,168/255,220/255)
+                    helper_text_color_focus: (111/255,168/255,220/255)
+                MDTextField:
                     id: email
-                    hint_text: "Email"
+                    hint_text: "Email*"
+                    icon_left:"email"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
@@ -62,7 +92,10 @@
                     helper_text_color_focus: "white"
                 MDTextField:
                     id: address
-                    hint_text: "Address"
+                    hint_text: "Address*"
+                    icon_left:"home"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
@@ -73,7 +106,10 @@
 
                 MDTextField:
                     id: contact
-                    hint_text: "Contact No."
+                    hint_text: "Contact No.*"
+                    icon_left:"phone"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
@@ -84,7 +120,10 @@
                 MDTextField:
                 # dapat calendar tapos matic na yung sa age
                     id: dob
-                    hint_text: "Date of Birth"
+                    hint_text: "Date of Birth*"
+                    icon_left:"calendar"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     on_focus: if self.focus: root.showCalendar()
                     hint_text_color_normal:"white"
@@ -96,7 +135,10 @@
                 MDTextField:
                 # magbbase sa DOB
                     id: age
-                    hint_text: "Age"
+                    hint_text: "Age*"
+                    required: True
+                    icon_left:"account"
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
@@ -107,7 +149,10 @@
                 MDTextField:
                 # dapat dropdown ito
                     id: gender
-                    hint_text: "Gender"
+                    required: True
+                    icon_left:"gender-male-female"
+                    error_color: (111/255,168/255,220/255)
+                    hint_text: "Gender*"
                     pos_hint:{"center_x": .5}
                     on_focus: if self.focus: root.GenderMenu.open()
                     hint_text_color_normal:"white"
@@ -118,15 +163,21 @@
                     helper_text_color_focus: "white"
                 MDTextField:
                     id: password
-                    hint_text: "Password"
+                    hint_text: "Password*"
+                    icon_left:"key-variant"
+                    required: True
                     password: True
+                    error_color: (111/255,168/255,220/255)
                     pos_hint:{"center_x": .5}
+                    helper_text_mode: "on_error"
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
                     line_color_normal: "white"
                     line_color_focus: "white"
                     text_color_normal:"white"
                     helper_text_color_focus: "white"
+                    helper_text: "Minimum 8 characters w/ special, uppercase, and number"
+                    on_text: root.validate_password()
                 MDRaisedButton:
                     text: "Register"
                     pos_hint:{"center_x": .5}
