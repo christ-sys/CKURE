@@ -33,11 +33,15 @@
                 MDTextField:
                     id: email
                     hint_text: "Email"
+                    icon_left:"email"
                     helper_text: "This field is required"
                     helper_text_mode: "on_focus"
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
-                    # validator: "email"
+                    validator: "email"
+                    required: True
+                    error_message: "Invalid email"
+                    error_color: (111/255,168/255,220/255)
                     line_color_normal: "white"
                     line_color_focus: "white"
                     text_color_normal:"white"
@@ -45,9 +49,12 @@
                 MDTextField:
                     id: password
                     hint_text: "Password"
+                    icon_left:"key-variant"
                     password: True
                     helper_text: "This field is required"
-                    helper_text_mode: "on_focus"
+                    required: True
+                    error_color: (111/255,168/255,220/255)
+                    helper_text_mode: "on_error"
                     hint_text_color_normal:"white"
                     hint_text_color_focus:"white"
                     line_color_normal: "white"

@@ -5,7 +5,7 @@
         cols: 1
         MDTopAppBar:
             title: "Result"
-            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+            # left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
             right_action_items: [["plus",lambda x : root.back(self.icon)]]
             elevation: 0
             md_bg_color:"#323B4E"
@@ -13,7 +13,7 @@
         GridLayout:
             cols: 1
             spacing: 5
-            padding: 10
+            padding: 5
             id:test
             height: self.minimum_height
             
@@ -28,78 +28,49 @@
                     spacing: 10
                     padding:8
                     height: self.minimum_height
-                    
-            
-            GridLayout:
-                cols:1
-                height: '120dp'
+
+            AnchorLayout:
+                anchor_y: 'bottom'
+                padding: 20,0,20,20
+                anchor_x: 'center'
                 size_hint_y: None
-                padding: 0,0,0,20
-                canvas.before:
-                    Color:
-                        rgba: 1,1,1,1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                MDLabel:
-                    text: 'Estimated Cost'
+                MDRaisedButton:
+                    text: "Generate a Report"
+                    mode: "rectangle"
+                    text_color: "white"
                     halign: 'center'
-                    font_style: 'Subtitle2'
-
-                MDLabel:
-                    id: cost
-                    text: 'Php 0.00'
-                    halign: 'center'
-                    pos_hint:{"center_x":.5,"center_y":.005}
-                    font_style: 'H5'
-                    color: [1,0,0]
-
-                AnchorLayout:
-                    padding: 0,20,0,10
-                    # MDFillRoundFlatButton:
-                    MDRaisedButton:
-                        text: "Generate a Report"
-                        mode: "rectangle"
-                        text_color: "white"
-                        halign: 'center'
-                        font_size: '18sp'
-                        size_hint_x: 1
-                        elevation: 0
-                        md_bg_color:"#607398"
-                        padding: 10
-                        on_release:
-                            app.root.current="reportCar"
-                            root.manager.transition.direction="left"
+                    font_size: '18sp'
+                    size_hint_x: 1
+                    elevation: 0
+                    md_bg_color:"#607398"
+                    padding: 10
+                    on_release:
+                        app.root.current="createReport"
 
 <CustomCard>:
     orientation: 'vertical'
     padding: dp(20)
-    radius: [dp(20)]
-    category: root.category
-        
-
     Image:
         source: root.image_source
         allow_stretch: True
         keep_ratio: True
         size_hint_y: 3
 
-    ThreeLineIconListItem:
-        text: root.part
-        secondary_text: root.severity
-        tertiary_text: root.cost
+    TwoLineIconListItem:
+        text: root.damage
+        secondary_text: root.confidence
+        font_style: "Button"
 
         IconLeftWidget:
             icon: 'car'
        
-    AnchorLayout:
-        MDRectangleFlatIconButton:
-            icon: "trash-can"
-            text: "Remove"
-            icon_theme_color:"Custom"
-            icon_color:"red"
-            theme_text_color:"Custom"
-            text_color: "red"
-            line_color: 0, 0, 0, 0
-            size_hint_x: 1
-            on_press: app.delete(root.image_source)
+    MDRectangleFlatIconButton:
+        icon: "trash-can"
+        text: "Remove"
+        icon_theme_color:"Custom"
+        icon_color:"red"
+        theme_text_color:"Custom"
+        text_color: "red"
+        line_color: 0, 0, 0, 0
+        size_hint_x: 1
+        on_press: app.delete(root.image_source)

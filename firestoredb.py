@@ -31,12 +31,13 @@ def get_model(compny):
 def get_history(userID):
     data=[]
     # reports = db.collection('reports').get()
-    reports = db.collection('reports').where('UserID', '==', userID).get()
+    reports = db.collection('reports').where('report_sender', '==', userID).get()
 
     for e in reports:
             data.append([e.get('Date'),e.get('Location')])
     
     return data
+
 
 
 # STORING DATA

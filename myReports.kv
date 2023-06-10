@@ -1,0 +1,51 @@
+<MyReports>:
+    name:"myReports"
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title:"Reports"
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+        MDBottomNavigation:
+            panel_color: "#323B4E"
+            text_color_active: "lightgrey"
+            MDBottomNavigationItem:
+                name: 'pending'
+                text: 'RENDING REPORTS'
+                id: pending_count
+                icon: 'account'
+                # badge_icon:"numeric-"+root.count_reports()
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "10dp"
+                    MDRelativeLayout:
+                        ScrollView:
+                            size_hint: (1,1)
+                            MDGridLayout:
+                                cols: 1
+                                id: pending
+                                size_hint_y: None
+                                height: self.minimum_height + dp(10)
+                                radius: [10,10,0,0]
+            MDBottomNavigationItem:
+                name: 'approved'
+                id: approved_count
+                text: 'APPROVED REPORTS'
+                icon: 'file-document'
+                # badge_icon:"numeric-"+root.approved_reports()
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "10dp"
+                    MDRelativeLayout:
+                        ScrollView:
+                            size_hint: (1,1)
+                            MDGridLayout:
+                                cols: 1
+                                id: validated
+                                size_hint_y: None
+                                height: self.minimum_height + dp(10)
+                                radius: [10,10,0,0]
+
+        
