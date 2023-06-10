@@ -1,9 +1,8 @@
-<home>:
+<Home>:
     name:"home"
     BoxLayout:
         orientation: 'vertical'
         MDTopAppBar:
-            title:"Damage Evaluation"
             elevation: 0
             right_action_items:[["power-standby",lambda x : app.logout(self.icon)]]
             md_bg_color:"#323B4E"
@@ -16,41 +15,113 @@
                 name: 'home'
                 text: 'Home'
                 icon: 'home'
-                MDBoxLayout:
-                    orientation: "vertical"
-                    adaptive_height: True
-                    spacing: "15dp"
-                    padding: "12dp"
-                    pos_hint: {"center_y": .5}
-                    md_bg_color:"#607398"
-                    MDLabel:
-                        text: "Car Body Parts"
-                        font_name: 'fonts/Oswald-Regular.ttf'
-                    MDSmartTile:
-                        radius: 24
-                        box_radius: [0, 0, 24, 24]
-                        box_color: 1, 1, 1, .2
-                        source: "assets/swiper1.png"
-                        pos_hint: {"center_x": .5, "center_y": .7}
-                        size_hint: None, None
-                        size: "320dp", "320dp"
-            
+                BoxLayout:
+                    orientation: 'vertical'
+                    md_bg_color:"#caf0f8"
+                    ScrollView:
+                        size_hint: (1,1)
+                        MDGridLayout:
+                            cols: 2
+                            spacing: "8dp"
+                            padding: "10dp", "10dp", "10dp", "50dp"
+                            size_hint_y: None
+                            height: self.minimum_height + dp(10)
+                            MDCard:
+                                orientation: 'vertical'
+                                orientation: 'vertical'
+                                padding: '8dp'
+                                height: '100dp'
+                                border_radius: 20
+                                radius: [15]
+                                size_hint: .9,None
+                                md_bg_color:"#caf0f8"
+                                ripple_behavior: True
+                                on_press: 
+                                    root.manager.current='myCar'
+                                    root.manager.transition.direction='left'
+                                AnchorLayout:
+                                    anchor_y: 'top'
+                                    anchor_x: 'center'
+                                    # padding: ('0dp', '20dp', '0dp', '0dp')
+                                    MDIcon:
+                                        font_size: '50dp'
+                                        icon: "car"
+                                        # badge_icon: "numeric-"+root.count_reports()
+                                        # badge_bg_color: "#323B4E"
+                                    MDLabel:
+                                        font_size: '18dp'
+                                        text: "MY CAR"
+                                        font_style:"Caption"
+                                        valign:"bottom"
+                                        halign: "center"
+                                        padding: ('0dp', '30dp', '0dp', '0dp')
+                            MDCard:
+                                orientation: 'vertical'
+                                orientation: 'vertical'
+                                padding: '8dp'
+                                height: '100dp'
+                                border_radius: 20
+                                radius: [15]
+                                size_hint: .9,None
+                                md_bg_color:"#caf0f8"
+                                ripple_behavior: True
+                                on_press: root.manager.current='myInsurance'
+                                AnchorLayout:
+                                    anchor_y: 'top'
+                                    anchor_x: 'center'
+                                    # padding: ('0dp', '20dp', '0dp', '0dp')
+                                    MDIcon:
+                                        font_size: '50dp'
+                                        icon: "car"
+                                        # badge_icon: "numeric-"+root.count_reports()
+                                        # badge_bg_color: "#323B4E"
+                                    MDLabel:
+                                        font_size: '18dp'
+                                        text: "MY CAR INSURANCE"
+                                        font_style:"Caption"
+                                        valign:"bottom"
+                                        halign: "center"
+                                        padding: ('0dp', '30dp', '0dp', '0dp')
+                            MDLabel:
+                                text: 'MY REPORTS'
+                                font_style:'Button'
+                            MDLabel:
+                                text: 'MY CLAIMS'
+                                font_style:'Button'
+                            MDRectangleFlatIconButton:
+                                md_bg_color:"#6FA8DC"
+                                size_hint_x:.9
+                                elevation:0
+                                line_color: 0, 0, 0, 0
+                                on_press: root.manager.current='myReports'
+                                MDIcon:
+                                    icon:'file'
+                                    badge_icon: "numeric-10"
+                                    icon_color:"white"
+                            MDRectangleFlatIconButton:
+                                md_bg_color:"#6FA8DC"
+                                size_hint_x:.9
+                                elevation:0
+                                line_color: 0, 0, 0, 0
+                                MDIcon:
+                                    icon:'file'
+                                    badge_icon: "numeric-10"
+                                    icon_color:"white"
 
-
-            MDBottomNavigationItem:
-                name: 'reports'
-                text: 'Reports'
-                icon: 'file-document'
+            # MDBottomNavigationItem:
+            #     name: 'reports'
+            #     text: 'Reports'
+            #     icon: 'file-document'
                 
-                GridLayout:
-                    cols:1
-                    MDList:
-                        id: historyList
+            #     GridLayout:
+            #         cols:1
+            #         MDList:
+            #             id: historyList
 
             MDBottomNavigationItem:
                 name: 'scan'
-                text: 'Scan'
-                icon: 'line-scan'
+                text: 'Diagnose'
+                icon: 'car-emergency'
                 BoxLayout:
                     orientation: 'vertical'
                     padding: '12dp'
@@ -66,14 +137,6 @@
                         MDIconButton:
                             icon:'camera'
                             on_press: root.Camera()
-            MDBottomNavigationItem:
-                name: 'reports'
-                text: 'Claims'
-                icon: 'file-document'
-                
-                MDLabel:
-                    halign:"center"
-                    text: 'NO DATA AVAILABLE'
 
             MDBottomNavigationItem:
                 name: 'update_profile'
@@ -98,16 +161,16 @@
                                 size_hint: None, None
                                 width:"130dp"
                                 height: "130dp"
-                                source: 'assets/profile.jpeg'  
+                                source: 'assets/profile.jpg'  
                                 radius:100
-                        MDTextField:
-                            id: name
-                            hint_text: "Name"
-                            pos_hint:{"center_x": .5}
-                            
                         MDTextField:
                             id: email
                             hint_text: "Email"
+                            pos_hint:{"center_x": .5}
+                            disabled: True
+                        MDTextField:
+                            id: name
+                            hint_text: "Name"
                             pos_hint:{"center_x": .5}
  
                         MDTextField:
@@ -144,4 +207,4 @@
                             size_hint_x: 0.9
                             size_hint_y: 0.1
                             elevation: 0
-                            on_release: root.updateUserInfo()
+                            on_press: root.updateUserInfo()

@@ -1,0 +1,82 @@
+<MyInsurance>:
+    name:'myInsurance'
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            use_overflow: True
+        BoxLayout:
+            orientation: 'vertical'
+            padding: ('15dp', '0dp', '15dp', '0dp')
+            ScrollView:
+                size_hint: (1,9)
+                MDGridLayout:
+                    cols: 1
+                    spacing: "8dp"
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    size_hint_y: None
+                    height: self.minimum_height + dp(10)
+                    Fields:
+                        id:agent
+                        hint_text: "AGENT CODE"
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:policy_no
+                        hint_text: "POLICY NO."
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:date
+                        hint_text: "DATE ISSUED"
+                        required: True
+                        icon_left: "calendar"
+                    MDLabel:
+                        text: "PERIOD OF INSURANCE:"
+                    MDGridLayout:
+                        cols: 2
+                        size_hint_y: None
+                        # height: self.minimum_height + dp(10)
+                        Fields:
+                            id: start
+                            hint_text: "From"
+                            required: True
+                            icon_left: "calendar"
+                        Fields:
+                            id: end
+                            hint_text: "To"
+                            required: True
+                            icon_left: "calendar"
+                    MDLabel:
+                        text: "PREMIUMS:"
+                    Fields:
+                        id:premium
+                        hint_text: "INCLUSION"
+                        required: True
+                        icon_left: "file-outline"
+                                                                    
+            AnchorLayout:
+                padding: '10dp'
+                anchor_y: 'bottom'
+                anchor_x: "center"
+                MDRaisedButton:
+                    text: "Save"
+                    text_color: "white"
+                    halign: 'center'
+                    mode: "rectangle"
+                    font_size: '20sp'
+                    size_hint_x: 1
+                    md_bg_color: "#607398"
+                    elevation:0
+                    on_press: root.updateInsuranceInfo()
+<Fields@MDTextField>:
+    # mode: "rectangle"
+    line_color_normal:"#0096c7"
+    helper_text_mode: "persistent"
+    error_color: (111/255,168/255,220/255)
+    width: dp(10)
+    size_hint: 1, None
+    height: "10dp"
+    radius: [50,50,50,50]

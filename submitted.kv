@@ -4,9 +4,7 @@
         cols:1
 
         MDTopAppBar:
-            title: "Submit"
-            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
-            
+            title: "Report Submitted"
             elevation: 0
             md_bg_color:"#323B4E"
 
@@ -42,13 +40,14 @@
                     theme_text_color: 'Custom'
 
             AnchorLayout:
-                MDFillRoundFlatButton:
+                MDRaisedButton:
                     text: "Done"
                     text_color: "white"
                     halign: 'center'
                     font_size: '20sp'
                     size_hint:1, None
                     radius:1,1
+                    elevation:0
                     md_bg_color: "#607398"
                     # width: dp(100)
                     on_release:

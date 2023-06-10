@@ -1,61 +1,132 @@
 <CarDetails>:
     name: "car_details"
-    GridLayout:
-        cols: 1        
-        GridLayout:
-            cols: 1
-            spacing: 5              
-            BoxLayout:
-                orientation: 'vertical'
-                ScrollView:
-                    padding: 10
-                    MDList:
-                        padding: 30,0,30,30
-                        Image:
-                            id: imgSrc
-                            pos_hint:{"center_x": .5, "center_y": .005}
-                            source: 'assets/car.png'
-                            keep_ratio: True
-                            size_hint_y: None
-                            height: dp(150)
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title:"Car Details"
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            use_overflow: True
+        BoxLayout:
+            orientation: 'vertical'
+            padding: ('15dp', '0dp', '15dp', '0dp')
+            ScrollView:
+                size_hint: (1,9)
+                MDGridLayout:
+                    cols: 1
+                    spacing: "8dp"
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    size_hint_y: None
+                    height: self.minimum_height + dp(10)
+                    Fields:
+                        # COMMERCIAL OR PRIVATE
+                        id: vehicle_type
+                        hint_text: "TYPE OF USE:"
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:file_no
+                        hint_text: "MV FILE NO."
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:plate_no
+                        hint_text: "PLATE NO."
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:engine_no
+                        hint_text: "ENGINE/MOTOR NO."
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:chassis_no
+                        hint_text: "SERIAL/CHASSIS NO."
+                        required: True
+                        icon_left: "file-outline"
+                    Fields:
+                        id:denomination
+                        hint_text: "DENOMINATION"
+                        required: True
+                        icon_left: "car-outline"
+                    Fields:
+                        id:piston
+                        hint_text: "PISTON DISPLACEMENT"
+                        required: True
+                        icon_left: "piston"
+                    Fields:
+                        id:cylinders
+                        hint_text: "NO. OF CYLINDERS"
+                        required: True
+                        icon_left: "gas-cylinder"
+                    Fields:
+                        id:fuel
+                        hint_text: "FUEL"
+                        required: True
+                        icon_left: "fuel"
+            
+                    Fields:
+                        id:model
+                        hint_text: "MODEL/SERIES"
+                        required: True
+                    Fields:
+                        id:year
+                        hint_text: "YEAR MODEL"
+                        required: True
                         
-                        MDTextField:
-                            id:company
-                            hint_text: "Company"
-                            helper_text_mode: "persistent"
-                            width: dp(10)
-                            on_focus: if self.focus: root.CompanyMenu.open()
-
-                        MDTextField:
-                            id:model
-                            hint_text: "Model"
-                            helper_text_mode: "persistent"
-                            width: dp(10)
-                            on_focus: root.checkCompany(self, self.focus)
-                            
-                        MDTextField:
-                            id:platenum
-                            hint_text: "Plate Number"
-                            helper_text_mode: "persistent"
-                            width: dp(10)
-                        
-                        MDTextField:
-                            id:policynum
-                            hint_text: "Policy Number"
-                            helper_text_mode: "persistent"
-                            width: dp(10)
-                                                                        
-                        MDFillRoundFlatButton:
-                            text: "Save"
-                            text_color: "white"
-                            halign: 'center'
-                            font_size: '20sp'
-                            size_hint_x: 0.9
-                            md_bg_color: "#607398"
-                            radius: 1,1
-                            on_press: 
-                                root.manager.current='home'
-                                root.manager.transition.direction='left'
-                            on_release: root.saveCarDetails()
-                            
+                    Fields:
+                        id:body_type
+                        hint_text: "BODY TYPE"
+                        required: True
+                    
+                    Fields:
+                        id:color
+                        hint_text: "COLOR"
+                        required: True
+                    Fields:
+                        id:capacity
+                        hint_text: "CAPACITY"
+                        required: True
+                    Fields:
+                        id:grosswt
+                        hint_text: "GROSS WT."
+                        required: True
+                    Fields:
+                        id:netwt
+                        hint_text: "NET WT."
+                        required: True
+                    Fields:
+                        id:shppngwt
+                        hint_text: "SHIPPING WT."
+                        required: True
+                    Fields:
+                        id:netcap
+                        hint_text: "NET CAPACITY"
+                        required: True
+                                                                    
+            AnchorLayout:
+                padding: '10dp'
+                anchor_y: 'bottom'
+                anchor_x: "center"
+                MDRaisedButton:
+                    text: "Save"
+                    text_color: "white"
+                    halign: 'center'
+                    mode: "rectangle"
+                    font_size: '20sp'
+                    size_hint_x: 1
+                    md_bg_color: "#607398"
+                    elevation:0
+                    on_press: 
+                        on_release: root.saveCarDetails()
+<Fields@MDTextField>:
+    # mode: "rectangle"
+    line_color_normal:"#0096c7"
+    helper_text_mode: "persistent"
+    error_color: (111/255,168/255,220/255)
+    width: dp(10)
+    size_hint: 1, None
+    height: "10dp"
+    radius: [50,50,50,50]
                         

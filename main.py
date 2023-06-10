@@ -1,289 +1,376 @@
 # LIBRARY AND MODULE IMPORTS
-from kivy.core.window import Window
-from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager,Screen
-from kivy.clock import Clock
-from kivy.uix.image import Image as rawImage
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty, ObjectProperty
-from kivymd.app import MDApp
-from kivymd.uix.snackbar import Snackbar
-from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.pickers import MDDatePicker
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.card import MDCard
-from kivymd.uix.recycleview import RecycleView
-from kivymd.uix.label import MDLabel
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatButton,MDRectangleFlatIconButton
-from kivymd.uix.list.list import TwoLineListItem
-
-from kivymd.uix.sliverappbar import *
-from kivymd.icon_definitions import md_icons
-from datetime import datetime
-from pytz import timezone
-from PIL import Image, ImageOps
-from PIL import Image as pilImage
-from keras.models import load_model  # TensorFlow is required for Keras to work
 import hashlib
-import time
-import numpy as np
 import random
 import string
+import time
+from datetime import datetime
 
+import numpy as np
+from keras.models import load_model
+from kivy.clock import Clock
+from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import Image as rawImage
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivymd.app import MDApp
+from kivymd.icon_definitions import md_icons
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import (MDFlatButton, MDRectangleFlatButton,
+                               MDRectangleFlatIconButton)
+from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list.list import *
+from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.pickers import MDDatePicker
+from kivymd.uix.recycleview import RecycleView
+from kivymd.uix.sliverappbar import *
+from kivymd.uix.snackbar import Snackbar
+from PIL import Image
+from PIL import Image as pilImage
+from PIL import ImageOps
+from pytz import timezone
+from roboflow import Roboflow
 
-# FILE_IMPORTS
 import firebaseauth
 import firestoredb
 
-
-
-
-
-# CODING STARTS HERE
-# ==================
-# Window.size = (300, 500)
 Window.size = (350, 630)
 Builder.load_file("login.kv")
 Builder.load_file("signup.kv")
 Builder.load_file("carDetails.kv")
+Builder.load_file("insuranceDetails.kv")
 Builder.load_file("home.kv")
+Builder.load_file("myCar.kv")
+Builder.load_file("myInsurance.kv")
+Builder.load_file("blotter.kv")
 Builder.load_file("result.kv")
-Builder.load_file("reportCar.kv")
-Builder.load_file("driverdetails.kv")
+Builder.load_file("myReports.kv")
 Builder.load_file("submitted.kv")
-Builder.load_file("agreement.kv")
-Builder.load_file("success.kv")
 
-
-
-
-#============================================
-# =============SUCCESS PAGE================
-class Success(Screen):
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "agreement"
-
-
-#============================================
-# =============AGREEMENT PAGE================
-class Agreement(Screen):
-    pass
-
-
-#============================================
-# =============SUBMITTED PAGE================
 class Submitted(Screen):
-    def update_agreemnt(self):
-        print(VADetails)
-        DriverX = VADetails.get('Name')
-        time = VADetails.get('Time')
-        date =VADetails.get('Date')
-        cost=VADetails.get('Amount')
-        location =VADetails.get('Location')
-        part = VADetails.get('Parts')
-
-        uname = firebaseauth.userName
-
-        letter = screen_manager.get_screen('agreement').ids.letter    
-        letter.add_widget(MDLabel(text='{0} shall pay an amount of {1} to {2} for the cost of repair of the damaged {3} caused by collision at {4} last {5}, {6}'.format(DriverX,cost,uname,part,location,date,time)))
-
-        
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "driverdetails"
-
-
-
-#============================================
-# ================DRIVER PAGE================
-class driverDetails(Screen):
-    def details(self):
-        screen_manager.current="driverdetails"
-    
-    
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "report"
-    
-    def submit_rep(self):
-        driver={
-            "Address":self.ids.address.text,
-            "License_number":self.ids.license.text,
-            "Name":self.ids.name.text,
-            "Phone_number":self.ids.contact.text,
-            "Gender":self.ids.gender.text,
-        }
-        
-        driver.update(VADetails)
-        Ckure.on_submit_report(Ckure)
-        print("Recorded")
-
-
-#============================================
-# ================REPORT PAGE================
-class Report(Screen):
-    current_date= time.strftime("%d-%m-%Y")
-    current_time = time.strftime("%I:%M")
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-
-        #INITIALIZE WHAT CAR COMPANY
-        company_lst = firestoredb.get_company()
-        companies= [
-             {
-                "text": f"{i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{i}": self.companiesCallbak(x),
-            } for i in company_lst
-        ]
-
-        self.CompanyMenu = MDDropdownMenu(
-            caller=self.ids.company,
-            items=companies,
-            width_mult=4,
-            position="center"
-        )
-
-    def checkCompany(self, instance, focused):
-        if focused:
-            if self.ids.company.text!="":
-                self.ModelMenu.open()
-
-    def modelCallback(self, text_item):
-        self.ids.model.text=text_item
-
-    def companyCallback(self, text_item):
-        self.ids.insurancecomp.text=text_item
-
-    def companiesCallbak(self,text_item):
-        self.ids.model.text=""
-        self.ids.company.text=text_item
-        model_lst=firestoredb.get_model(text_item)
-
-        models=[
-            {
-                "text": f"{i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{i}": self.modelCallback(x)
-
-            } for i in model_lst
-        ]
-
-        self.ModelMenu = MDDropdownMenu(
-            caller=self.ids.model,
-            items=models,
-            width_mult=4,
-            position="center"
-        )
-    
-    
-    def report(self):
-        rv = screen_manager.get_screen('result').ids.rv
-        data = rv.data
-        parts =""
-        for element in data:
-            for key, value in element.items():
-                if key == 'part':
-                    parts+='{} '.format(value)
-
-        mycost = screen_manager.get_screen('result').ids.cost.text
-
-        #GENERATE LISTS FOR VADETAILS LIST
-        CarDetails={
-            "Insurance_company":self.ids.insurancecomp.text,
-            "Model":self.ids.model.text,
-            "Plate_number":self.ids.platenum.text,
-            "Policy_number": self.ids.policynum.text,
-        }
-        
-        VaSpecifics={
-            "Time":self.ids.time.text,
-            "Date":self.ids.date.text,
-            "Location":self.ids.location.text,
-            "Amount": mycost,
-            "Parts": parts,
-            "UserID": firebaseauth.userID,
-            "Status": 'Pending'
-        }
-        
-        VADetails.update(VaSpecifics)
-        VADetails.update(CarDetails)
-        print(VADetails)
-        
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "result"
-
-class driverDetails(Screen):
-    def details(self):
-        screen_manager.current="driverdetails"
-    
-    
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "reportCar"
-    
-    def submit_rep(self):
-        driver={
-            "Address":self.ids.address.text,
-            "License_number":self.ids.license.text,
-            "Name":self.ids.name.text,
-            "Phone_number":self.ids.contact.text,
-            "Gender":self.ids.gender.text,
-        }
-        
-        VADetails.update(driver)
-        Ckure.on_submit_report(Ckure)
-        print("Recorded")
-
-
-
-#============================================
-# ================RESULT PAGE================
-
+    pass
 class CustomRecycleView(RecycleView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.data = [{'image_source':str(i['image_source']),'category':i['category'],'part':i['part'],'severity':i['severity'],'cost':i['cost']} for i in Ckure.image_list]
-
-# CUSTOM WIDGET FOR THE ITEMS IN THE RECYCLEVIEW
-class CustomCard(MDCard):
+        # self.data = [
+        #     {'image_source':str(i['image_source']),
+        #      'category':i['category'],
+        #      'part':i['part'],
+        #      'severity':i['severity'],
+        #      'cost':i['cost']} 
+        #     for i in Ckure.image_list]
+        self.data = []
+class CustomCard(BoxLayout):
     image_source = StringProperty()
     category = StringProperty()
     part = StringProperty()
     severity = StringProperty()
     cost=StringProperty()
-
+    damage = StringProperty()
+    confidence = StringProperty()
+    location = StringProperty()
+    service = StringProperty()
 class Result(Screen):
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
-
-    def save():
-        RecordAmount = 1000
-
-
-
-#============================================
-# ================HOME PAGE================
-
 class someCard(MDCard):
     text=StringProperty()
 
-class ContentNavigationDrawer(MDBoxLayout):
-    pass
-
-class Home(Screen, MDBoxLayout):
-    sm = ObjectProperty()
-    nav_drawer = ObjectProperty()
-
-    #HISTORY SCREEN
+class SignUp(Screen):
     def __init__(self, **kw):
-        super().__init__(**kw)
-       
+        super(SignUp, self).__init__(**kw)
+        self.app_bar = MDSliverAppbarHeader(
+            MDRectangleFlatIconButton(
+                text="Back to login",
+                text_color= "white",
+                font_size = "20dp",
+                icon="arrow-left",
+                line_color= [0, 0, 0, 0],
+                theme_icon_color= "Custom",
+                icon_color="white",
+                on_release=lambda x: self.back(),
+                pos_hint= {"center_x": .03, "center_y": .95}
+            )
+        )
+        self.add_widget(self.app_bar)
+
+
+        genderLst = ['Male', 'Female']
+        gender= [
+             {
+                "text": f"{i}",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x=f"{i}": self.genderCallback(x),
+            } for i in genderLst
+        ]
+
+        self.GenderMenu = MDDropdownMenu(
+            caller=self.ids.gender,
+            items=gender,
+            width_mult=4,
+            position="center"
+        )
+    def validate_password(self):
+        password = self.ids.password.text
+        # Minimum length check
+        if len(password) < 8:
+            self.ids.password.error = True
+            return
+        # Special character check
+        if not any(char.isalnum() for char in password):
+            self.ids.password.error = True
+            return
+        # Uppercase letter check
+        if not any(char.isupper() for char in password):
+            self.ids.password.error = True
+            return
+        # Number check
+        if not any(char.isdigit() for char in password):
+            self.ids.password.error = True
+            return
+        # All checks passed
+        self.ids.password.error = False
+
+    def genderCallback(self,text_item):
+        self.ids.gender.text=text_item
+
+    def calculateAge(self,dob):
+        currDate = datetime.now(timezone('Asia/Manila'))
+        age = currDate.year-dob.year-((currDate.month, currDate.day) < (dob.month, dob.day))
+        return age
+    
+    def dateSelect_ok(self,instance,value,date_range):
+        mydate = value.strftime("%B %d, %Y")
+        self.ids.dob.text = str(mydate)
+        myage = self.calculateAge(value)
+        self.ids.age.text= str(myage)
+    
+    def dateSelect_cancel(self,instance,value):
+        self.ids.dob.text = ''
+        self.ids.age.text =''
+
+    def showCalendar(self):
+        date_dialog = MDDatePicker()
+        date_dialog.bind(on_save=self.dateSelect_ok, on_cancel=self.dateSelect_cancel)
+        date_dialog.open()
+    
+    def reg_user(self):
+        email = self.ids.email.text
+        password = self.ids.password.text
+        pass_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        name = self.ids.name.text
+        contact = self.ids.contact.text
+        address = self.ids.address.text
+        dob = self.ids.dob.text
+        age = self.ids.age.text
+        gender = self.ids.gender.text
+        license_id = self.ids.license.text
+        profession = self.ids.business.text
+        try:
+            user = firebaseauth.auth.create_user_with_email_and_password(email, password)
+            user_uid = user['localId']
+            data={
+                "email": email,
+                "name": name,
+                "phone": contact,
+                "address": address,
+                "dob": dob,
+                "age": age,
+                "gender": gender,
+                "password": pass_hash,
+                "license_id": license_id,
+                "profession": profession
+            }   
+            user_ref = firestoredb.db.collection('users').document(user_uid)
+            user_ref.set({})
+            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').set(data)
+            # Pass the user ID to the CarDetails screen
+            car_details_screen = self.manager.get_screen('car_details')
+            car_details_screen.user_id = user_uid
+            insurance_details_screen = self.manager.get_screen('insurance_details')
+            insurance_details_screen.user_id = user_uid
+
+            self.manager.current = 'car_details'
+            print(user_uid) 
+        except Exception as e:
+            Snackbar(
+                text="Registration Failed",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+                size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+        
+    def back(self):
+        self.manager.current = "login"
+class Login(Screen):
+
+    def myCredentials(self,user_id):
+        if user_id:
+            myScr = screen_manager.get_screen("home")
+            myCar = screen_manager.get_screen("myCar")
+            myInsurance = screen_manager.get_screen("myInsurance")
+            myReport = screen_manager.get_screen("createReport")
+            
+            current_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('UserInfo').get()
+            myCurrCred = current_cred.to_dict()
+            
+            myCar_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('CarInfo').get()
+            myCarInfo = myCar_cred.to_dict()
+            
+            myInsurance_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('InsuranceInfo').get()
+            myInsuranceInfo = myInsurance_cred.to_dict()
+                        
+            #STORE USERNAME
+            firebaseauth.userName = myCurrCred.get('name')
+            myScr.ids.name.text = myCurrCred.get('name')
+            myScr.ids.email.text = myCurrCred.get('email')
+            myScr.ids.address.text = myCurrCred.get('address')
+            myScr.ids.contact.text = myCurrCred.get('phone')
+            myScr.ids.age.text = myCurrCred.get('age')
+            myScr.ids.dob.text = myCurrCred.get('dob')
+            myScr.ids.gender.text = myCurrCred.get('gender')
+            # MY CAR INFO
+            myCar.ids.vehicle_type.text = myCarInfo.get('vehicle_type')
+            myCar.ids.file_no.text = myCarInfo.get('file_no')
+            myCar.ids.plate_no.text = myCarInfo.get('plate_no')
+            myCar.ids.engine.text = myCarInfo.get('engine_no')
+            myCar.ids.chassis.text = myCarInfo.get('chassis_no')
+            myCar.ids.denomination.text = myCarInfo.get('denomination')
+            myCar.ids.piston.text = myCarInfo.get('piston')
+            myCar.ids.cylinders.text = myCarInfo.get('cylinders')
+            myCar.ids.fuel.text = myCarInfo.get('fuel')
+            myCar.ids.model.text = myCarInfo.get('model')
+            myCar.ids.year.text = myCarInfo.get('year')
+            myCar.ids.body_type.text = myCarInfo.get('body_type')
+            myCar.ids.color.text = myCarInfo.get('color')
+            myCar.ids.grosswt.text = myCarInfo.get('grosswt')
+            myCar.ids.netwt.text = myCarInfo.get('netwt')
+            myCar.ids.shppngwt.text = myCarInfo.get('shppngwt')
+            myCar.ids.netcap.text = myCarInfo.get('netcap')
+            # MY CAR INSURANCE
+            myInsurance.ids.agent.text = myInsuranceInfo.get('agent')
+            myInsurance.ids.policy_no.text = myInsuranceInfo.get('policy_no')
+            myInsurance.ids.date.text = myInsuranceInfo.get('date')
+            myInsurance.ids.start.text = myInsuranceInfo.get('start')
+            myInsurance.ids.end.text = myInsuranceInfo.get('end')
+            myInsurance.ids.premium.text = myInsuranceInfo.get('premium')
+
+
+    def checkNewUser(self,user_id):
+        VArec_ref ='users/'+user_id+'/Account'
+        specifics_ref=firestoredb.db.collection(VArec_ref).document('CarInfo').get()
+        indicator = specifics_ref.to_dict()
+        if not indicator:
+            return 'car_details'
+        else:
+            return 'home'
+
+    def verify_user(self):
+        email = self.ids.email.text
+        password = self.ids.password.text
+        try:
+            user = firebaseauth.auth.sign_in_with_email_and_password(email, password)
+            firebaseauth.userID = user['localId']
+            
+            #DETERMINE LANDING PAGE ON SIGN IN
+            self.manager.current=self.checkNewUser(firebaseauth.userID) 
+
+            #UPDATE USER PROFILE
+            self.myCredentials(firebaseauth.userID)
+
+        except Exception as e:
+            print(str(e))
+            Snackbar(
+                text=str(e),
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+                size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+class CarDetails(Screen):
+    current_date = time.strftime("%d-%m-%Y")
+    current_time = time.strftime("%I:%M")
+    def saveCarDetails(self):
+        user_id = self.user_id
+        if user_id:
+            try:
+                data = {
+                    "vehicle_type": self.ids.vehicle_type.text,
+                    "file_no": self.ids.file_no.text,
+                    "plate_no": self.ids.plate_no.text,
+                    "engine_no": self.ids.engine_no.text,
+                    "chassis_no": self.ids.chassis_no.text,
+                    "denomination": self.ids.denomination.text,
+                    "piston": self.ids.piston.text,
+                    "cylinders": self.ids.cylinders.text,
+                    "fuel": self.ids.fuel.text,
+                    "model": self.ids.model.text,
+                    "year": self.ids.year.text,
+                    "body_type": self.ids.body_type.text,
+                    "color": self.ids.color.text,
+                    "capacity": self.ids.capacity.text,
+                    "grosswt": self.ids.grosswt.text,
+                    "netwt": self.ids.netwt.text,
+                    "shppngwt": self.ids.shppngwt.text,
+                    "netcap": self.ids.netcap.text,
+                }
+                user_ref = firestoredb.db.collection('users').document(user_id).collection('Account').document('CarInfo')
+                user_ref.set(data)  # Save the car details for the user
+                # insurance_details_screen = self.manager.get_screen('insurance_details')
+                # insurance_details_screen.user_id = self.manager.get_screen('').user_uid
+                self.manager.current = "insurance_details"
+                Snackbar(
+                    text="Car details saved",
+                    snackbar_x="10dp",
+                    snackbar_y="10dp",
+                    size_hint_x=(Window.width - (10 * 2)) / Window.width
+                ).open()
+            except Exception as e:
+                # handle the exception
+                Snackbar(
+                    text="Failed to save car details: " + str(e),
+                    snackbar_x="10dp",
+                    snackbar_y="10dp",
+                    size_hint_x=(Window.width - (10 * 2)) / Window.width
+                ).open()
+class InsuranceDetails(Screen):
+    current_date = time.strftime("%d-%m-%Y")
+    current_time = time.strftime("%I:%M")
+    def saveInsuranceDetails(self):
+        user_id = self.user_id
+        if user_id:
+            try:
+                data = {
+                    "agent": self.ids.agent.text,
+                    "policy_no": self.ids.policy_no.text,
+                    "date": self.ids.date.text,
+                    "start": self.ids.start.text,
+                    "end": self.ids.end.text,
+                    "premium": self.ids.premium.text,
+                }
+                user_ref = firestoredb.db.collection('users').document(user_id).collection('Account').document('InsuranceInfo')
+                user_ref.set(data)  
+                self.manager.current='login'
+
+                Snackbar(
+                    text="Registration Successful!",
+                    snackbar_x="10dp",
+                    snackbar_y="10dp",
+                    size_hint_x=(Window.width - (10 * 2)) / Window.width
+                ).open()
+            except Exception as e:
+                # handle the exception
+                Snackbar(
+                    text="Failed to save details: " + str(e),
+                    snackbar_x="10dp",
+                    snackbar_y="10dp",
+                    size_hint_x=(Window.width - (10 * 2)) / Window.width
+                ).open()
+class Home(Screen, MDBoxLayout):
     #PROFILE SCREEN
     def calculateAge(self,dob):
         currDate = datetime.now(timezone('Asia/Manila'))
@@ -321,7 +408,6 @@ class Home(Screen, MDBoxLayout):
             user_uid = firebaseauth.userID
             # firestoredb.store_userData(ref,data)
             user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').set(data)
-
             Snackbar(
             text="Information Updated",
             snackbar_x="10dp",
@@ -340,29 +426,21 @@ class Home(Screen, MDBoxLayout):
 
     #MAIN SCREEN
     def Update_DataSrc(self, imgsrc):
-
         #CREATE A DICTIONARY FOR THE IMAGE AND RESULT
         image_data = {
             'image_source':imgsrc,
-            'category':'Front',
-            'part':'Bumper',
-            'severity':'Minor',
             'cost':'0'
             }
-        
         #UPDATE DICTIONARY
-
         image_data=Ckure.performDetections(image_data)
-
         #TO UPDATE IMAGE SOURCE
         rv = screen_manager.get_screen('result').ids.rv
         data = rv.data
         data.append(image_data)
         rv.refresh_from_data()
-        Ckure.total_cost(Ckure,data)
+        Ckure.total_cost(data)
 
     def Camera(self):
-        
         self.cam = self.ids['camera']
         myImg = rawImage()
         timeStr = time.strftime("%Y%m%d_%H%M%S")
@@ -382,100 +460,14 @@ class Home(Screen, MDBoxLayout):
         #MOVE TO NEXT PAGE UPON CAPTURING
         screen_manager.transition.direction='left'
         self.manager.current = 'result'
-
-#============================================
-# ================CAR DETAILS PAGE================
-class CarDetails(Screen):
-    current_date= time.strftime("%d-%m-%Y")
-    current_time = time.strftime("%I:%M")
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        
-        #INITIALIZE CAR BRAND
-        company_lst = firestoredb.get_company()
-        companies= [
-             {
-                "text": f"{i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{i}": self.companiesCallbak(x),
-            } for i in company_lst
-        ]
-        self.CompanyMenu = MDDropdownMenu(
-            caller=self.ids.company,
-            items=companies,
-            width_mult=4,
-            position="center"
-        )
-        
-    def checkCompany(self, instance, focused):
-        if focused:
-            if self.ids.company.text!="":
-                self.ModelMenu.open()
-    
-    def modelCallback(self, text_item):
-        self.ids.model.text=text_item
-
-    def companiesCallbak(self,text_item):
-        self.ids.model.text=""
-        self.ids.company.text=text_item
-        model_lst=firestoredb.get_model(text_item)
-
-        models=[
-            {
-                "text": f"{i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{i}": self.modelCallback(x)
-
-            } for i in model_lst
-        ]
-
-        self.ModelMenu = MDDropdownMenu(
-            caller=self.ids.model,
-            items=models,
-            width_mult=4,
-            position="center"
-        )
-
-    def saveCarDetails(self):
-        userRef = 'users/'+firebaseauth.userID+'/Account'
-
-        try:
-            data={
-                "company":self.ids.company.text,
-                "model":self.ids.model.text,
-                "plate": self.ids.platenum.text,
-                "policy_number":self.ids.policynum.text
-            }
-            firestoredb.store_userCar(userRef,data)
-            Snackbar(
-                text="Car details saved",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-                size_hint_x=(Window.width - (10 * 2)) / Window.width
-            ).open()
-
-        
-        except Exception as e:
-            Snackbar(
-                text="Saving Failed",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-                size_hint_x=(Window.width - (10 * 2)) / Window.width
-            ).open()
-
-
-
-#============================================
-# ================SIGNUP PAGE================
-
-class SignUp(Screen):
-    def __init__(self, **kw):
-        super(SignUp, self).__init__(**kw)
+class MyCar(Screen):
+    def __init__(self, **kwargs):
+        super(MyCar, self).__init__(**kwargs)
         self.app_bar = MDSliverAppbarHeader(
             MDRectangleFlatIconButton(
-                text="Back to login",
+                text="My Car Details",
                 text_color= "white",
+                font_style="Body1",
                 font_size = "20dp",
                 icon="arrow-left",
                 line_color= [0, 0, 0, 0],
@@ -486,152 +478,210 @@ class SignUp(Screen):
             )
         )
         self.add_widget(self.app_bar)
-
-
-        genderLst = ['Male', 'Female']
-        gender= [
-             {
-                "text": f"{i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{i}": self.genderCallback(x),
-            } for i in genderLst
-        ]
-
-        self.GenderMenu = MDDropdownMenu(
-            caller=self.ids.gender,
-            items=gender,
-            width_mult=4,
-            position="center"
-        )
-
-    def genderCallback(self,text_item):
-        self.ids.gender.text=text_item
-
-    def calculateAge(self,dob):
-        currDate = datetime.now(timezone('Asia/Manila'))
-        age = currDate.year-dob.year-((currDate.month, currDate.day) < (dob.month, dob.day))
-        return age
-    
-    def dateSelect_ok(self,instance,value,date_range):
-        mydate = value.strftime("%B %d, %Y")
-        self.ids.dob.text = str(mydate)
-        myage = self.calculateAge(value)
-        self.ids.age.text= str(myage)
-    
-    def dateSelect_cancel(self,instance,value):
-        self.ids.dob.text = ''
-        self.ids.age.text =''
-
-    def showCalendar(self):
-        date_dialog = MDDatePicker()
-        date_dialog.bind(on_save=self.dateSelect_ok, on_cancel=self.dateSelect_cancel)
-        date_dialog.open()
-    
-    def reg_user(self):
-        email = self.ids.email.text
-        password = self.ids.password.text
-        pass_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
-        name = self.ids.name.text
-        contact = self.ids.contact.text
-        address = self.ids.address.text
-        dob = self.ids.dob.text
-        age = self.ids.age.text
-        gender = self.ids.gender.text
+    def updateCarInfo(self):
         try:
-            user = firebaseauth.auth.create_user_with_email_and_password(email, password)
-            user_uid = user['localId']
-            data={
-                "email": email,
-                "name": name,
-                "phone": contact,
-                "address": address,
-                "dob": dob,
-                "age": age,
-                "gender": gender,
-                "password": pass_hash,
-            }   
-            user_ref = firestoredb.db.collection('users').document(user_uid)
-            user_ref.set({})
-            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').set(data)
-            self.manager.current = 'login'
-            print('Registration Success!')
-        except Exception as e:
+            data = {
+                "vehicle_type": self.ids.vehicle_type.text,
+                "file_no": self.ids.file_no.text,
+                "plate_no": self.ids.plate_no.text,
+                "engine_no": self.ids.engine.text,
+                "chassis_no": self.ids.chassis.text,
+                "denomination": self.ids.denomination.text,
+                "piston": self.ids.piston.text,
+                "cylinders": self.ids.cylinders.text,
+                "fuel": self.ids.fuel.text,
+                "model": self.ids.model.text,
+                "year": self.ids.year.text,
+                "body_type": self.ids.body_type.text,
+                "color": self.ids.color.text,
+                "grosswt": self.ids.grosswt.text,
+                "netwt": self.ids.netwt.text,
+                "shppngwt": self.ids.shppngwt.text,
+                "netcap": self.ids.netcap.text,
+            }
+
+            user_uid = firebaseauth.userID
+            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('CarInfo').set(data)
+
             Snackbar(
-                text="Registration Failed",
+            text="Car Information Updated",
+            snackbar_x="10dp",
+            snackbar_y="10dp",
+            size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+        
+        except:
+            Snackbar(
+                text="Could not update information",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+                size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+    def back(self):
+        self.manager.transition.direction='right'
+        self.manager.current = "home"
+class MyInsurance(Screen):
+    def __init__(self, **kwargs):
+        super(MyInsurance, self).__init__(**kwargs)
+        self.app_bar = MDSliverAppbarHeader(
+            MDRectangleFlatIconButton(
+                text="My Car Insurance",
+                text_color= "white",
+                font_style="Body1",
+                font_size = "20dp",
+                icon="arrow-left",
+                line_color= [0, 0, 0, 0],
+                theme_icon_color= "Custom",
+                icon_color="white",
+                on_release=lambda x: self.back(),
+                pos_hint= {"center_x": .03, "center_y": .95}
+            )
+        )
+        self.add_widget(self.app_bar)
+    def updateInsuranceInfo(self):
+        try:
+            data = {
+                "agent": self.ids.agent.text,
+                "policy_no": self.ids.policy_no.text,
+                "date": self.ids.date.text,
+                "start": self.ids.start.text,
+                "end": self.ids.end.text,
+                "premium": self.ids.premium.text,
+            }
+
+            user_uid = firebaseauth.userID
+            user_doc = firestoredb.db.collection('users').document(user_uid).collection('Account').document('InsuranceInfo').set(data)
+
+            Snackbar(
+            text="Insurance Updated",
+            snackbar_x="10dp",
+            snackbar_y="10dp",
+            size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+        
+        except:
+            Snackbar(
+                text="Could not update information",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+                size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+    def back(self):
+        self.manager.transition.direction='right'
+        self.manager.current = "home"
+class Report(Screen):
+    current_date= time.strftime("%d-%m-%Y")
+    current_time = time.strftime("%I:%M")   
+    def submitreport(self):
+        rv = screen_manager.get_screen('result').ids.rv
+        data = rv.data
+        user_uid = firebaseauth.userID
+        cloud_path=user_uid+"/"+time.strftime("%d-%m-%Y")
+        img_urls=[]
+        costs=[]
+        parts=[]
+        storage = firebaseauth.firebase.storage()
+        for img in data:
+            local_path = img['image_source']
+            imgfname = local_path.split('/')
+            img_cloud_path=cloud_path+"/"+imgfname[1]
+            storage.child(img_cloud_path).put(local_path)
+            img_urls.append(storage.child(img_cloud_path).get_url(None))
+            costs.append(img['cost'])
+            parts.append(img['damage'])
+        try:
+            user_uid = firebaseauth.userID
+            blotterDetails={
+                "ImgRef":img_urls,
+                "Costs":costs,
+                "PanelsPart":parts,
+                "Date":self.ids.date.text,
+                "Time":self.ids.time.text,
+                "Location":self.ids.location.text,
+                "Driver_Name":self.ids.accused_name.text,
+                "Driver_Address":self.ids.accused_address.text,
+                "Driver_Age":self.ids.accused_age.text,
+                "Driver_Gender":self.ids.accused_gender.text,
+                "Driver_License":self.ids.licensenum.text,
+                "Vehicle":self.ids.vehicle.text,
+                "Plate_number":self.ids.platenum.text,
+                "Witness_Name":self.ids.witness_name.text,
+                "Witness_Address":self.ids.witness_address.text,
+                "Witness_Age":self.ids.witness_age.text,
+                "Witness_Gender":self.ids.witness_gender.text,
+                "report_sender":user_uid,
+                "status": 'Pending'
+            }
+            VADetails.update(blotterDetails)
+            Ckure.on_submit_report(Ckure)
+            print(VADetails)
+            # dialog = MDDialog(
+            # title="Report Submitted",
+            # text="Your report has been submitted to PNP. Wait for the approval before you file a claim",
+            # buttons=[MDFlatButton(text="OK", on_release=lambda x: dialog.dismiss())]
+            # )
+            # dialog.open()
+            self.manager.current = 'submitted'
+        
+        except:
+            Snackbar(
+                text="Could no submit your report!",
                 snackbar_x="10dp",
                 snackbar_y="10dp",
                 size_hint_x=(Window.width - (10 * 2)) / Window.width
             ).open()
         
-    def back(self):
-        self.manager.transition.direction='right'
-        self.manager.current = "login"
-    
-
-#============================================
-# ================LOGIN PAGE================
-
-class Login(Screen):
-
-    def myCredentials(self,user_id):
-        if user_id:
-            myScr = screen_manager.get_screen("home")
-            current_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('UserInfo').get()
-            myCurrCred = current_cred.to_dict()
-                        
-            #STORE USERNAME
-            firebaseauth.userName = myCurrCred.get('name')
-
-            myScr.ids.name.text = myCurrCred.get('name')
-            myScr.ids.email.text = myCurrCred.get('email')
-            myScr.ids.address.text = myCurrCred.get('address')
-            myScr.ids.contact.text = myCurrCred.get('phone')
-            myScr.ids.age.text = myCurrCred.get('age')
-            myScr.ids.dob.text = myCurrCred.get('dob')
-            myScr.ids.gender.text = myCurrCred.get('gender')
-
-            report=firestoredb.get_history(firebaseauth.userID)
-            for e in report:
-                date = e[0]
-                location =e[1]
-                item = TwoLineListItem(text=date, secondary_text="Vehicular accident at " + location)
-                myScr.ids.historyList.add_widget(item)
-
-
-    def checkNewUser(self,user_id):
-        VArec_ref ='users/'+user_id+'/Account'
-        specifics_ref=firestoredb.db.collection(VArec_ref).document('CarInfo').get()
-        indicator = specifics_ref.to_dict()
-        if not indicator:
-            return 'car_details'
-        else:
-            return 'home'
-
-    def verify_user(self):
-        email = self.ids.email.text
-        password = self.ids.password.text
-        try:
-            user = firebaseauth.auth.sign_in_with_email_and_password(email, password)
-            firebaseauth.userID = user['localId']
-            
-            #DETERMINE LANDING PAGE ON SIGN IN
-            self.manager.current=self.checkNewUser(firebaseauth.userID) 
-
-            #UPDATE USER PROFILE
-            self.myCredentials(firebaseauth.userID)
-
-        except Exception as e:
-            print(str(e))
-            Snackbar(
-                text=str(e),
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-                size_hint_x=(Window.width - (10 * 2)) / Window.width
-            ).open()
-
-
-# STARTING CLASS
-# =================
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "result"
+class MyReports(Screen):
+    def on_pre_enter(self):
+        user_uid = firebaseauth.userID
+        reports = firestoredb.db.collection('reports')
+        reports_query = reports.where('report_sender', '==', user_uid).get()
+        reports_list = self.ids.validated
+        reports_list.clear_widgets()
+        pending_list = self.ids.pending
+        pending_list.clear_widgets()
+        for report in reports_query:
+            report_data = report.to_dict()
+            print(report_data)
+            date = "Date: " + report_data['Date']
+            time = "Time: " + report_data['Time']
+            location = "Location: " + report_data['Location']
+            if report_data['status']=="Approved":
+                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+                reports_list.add_widget(item)
+            elif report_data['status']=="Pending":
+                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+                pending_list.add_widget(item)
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "home"
+class MyCLaims(Screen):
+    def on_pre_enter(self):
+        user_uid = firebaseauth.userID
+        claims = firestoredb.db.collection('claims')
+        claims_query = claims.where('claimant_id', '==', user_uid).get()
+        claims_list = self.ids.validated
+        claims_list.clear_widgets()
+        pending_list = self.ids.pending
+        pending_list.clear_widgets()
+        for claim in claims_query:
+            claim_data = claim.to_dict()
+            print(claim_data)
+            date = "Date: " + claim_data['Date']
+            time = "Time: " + claim_data['Time']
+            location = "Location: " + claim_data['Location']
+            if claim_data['status']=="Approved":
+                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+                claims_list.add_widget(item)
+            elif claim_data['status']=="Pending":
+                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+                pending_list.add_widget(item)
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "home"
 class Ckure(MDApp):
     image_list= []
     global VADetails
@@ -639,121 +689,74 @@ class Ckure(MDApp):
 
     def build(self):
         global screen_manager
-
         screen_manager = ScreenManager()
         screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
         screen_manager.add_widget(Login(name='login'))
         screen_manager.add_widget(SignUp(name='signup'))
         screen_manager.add_widget(CarDetails(name='car_details'))
+        screen_manager.add_widget(InsuranceDetails(name='insurance_details'))
         screen_manager.add_widget(Home(name='home'))
+        screen_manager.add_widget(MyCar(name='myCar'))
+        screen_manager.add_widget(MyReports(name='myReports'))
+        screen_manager.add_widget(MyInsurance(name='myInsurance'))
         screen_manager.add_widget(Result(name='result'))
-        screen_manager.add_widget(Report(name='reportCar'))
-        screen_manager.add_widget(driverDetails(name='driverdetails'))
+        screen_manager.add_widget(Report(name='createReport'))
         screen_manager.add_widget(Submitted(name='submitted'))
-        screen_manager.add_widget(Agreement(name='agreement'))
-        screen_manager.add_widget(Success(name='success'))
 
         return screen_manager
-    
+    def on_start(self):
+        Clock.schedule_once(self.login, 12)
+
+    def login(self, *args):
+        screen_manager.current = "login"
     #DELETING IMAGE DATASET
-    def delete(self,x):
+    
+    #CALCULATE TOTAL AMOUNT TO BE PAID
+    def total_cost(data_list):
+        total_cost=0
+        for data in data_list:
+            for key,val in data.items():
+                if key=='cost':
+                    total_cost+=int(val)
+    #DETECTION
+    def performDetections(data_list):
+        rf = Roboflow(api_key="6riPgDH2G6Wn2Lqa4MTC")
+        model = rf.workspace().project("ckure").version(4).model
+        response = model.predict(data_list['image_source'], confidence=40, overlap=30).json()
+
+        if not response['predictions']:
+            data_list['damage'] = 'No predictions found!'
+            data_list['confidence'] = 'No predictions found!'
+            dialog = MDDialog(
+                title="No Predictions Found",
+                text="No damage predictions were found for the image.",
+                buttons=[
+                    MDFlatButton(
+                        text="OK",
+                        on_release=lambda x: dialog.dismiss()
+                    )
+                ]
+            )
+            dialog.open()
+        else:
+            predictions = [(round(pred['confidence'] * 100, 2), pred['class']) for pred in response['predictions']]
+            predictions.sort(reverse=True)  # Sort predictions by confidence in descending order
+            max_confidence = predictions[0][0]
+            max_damage = predictions[0][1]
+            data_list['damage'] = max_damage
+            data_list['confidence'] = f"{max_confidence}%"
+            model.predict(data_list['image_source'], confidence=40, overlap=30).save("prediction.jpg")
+        return data_list
+    def delete(self, x):
         rv = screen_manager.get_screen('result').ids.rv
         data = rv.data
 
         for element in data:
             for key, value in element.items():
                 if value == x:
-                    myindex=data.index(element)
-
-        del data[myindex]
-        self.total_cost(data)
-        rv.refresh_from_data()
-
-
-    #CALCULATE TOTAL AMOUNT TO BE PAID
-    def total_cost(self,x_list):
-        total_cost=0
-        for e in x_list:
-            for key,val in e.items():
-                if key=='cost':
-                    total_cost+=int(val)
-        
-        #REFERENCE TO THE RESULT COST
-        mycost = screen_manager.get_screen('result').ids.cost
-        mycost.text = "Php " + str(total_cost)
-
-    #DETECTION
-    def performDetections(data_list):
-
-        # Disable scientific notation for clarity
-        np.set_printoptions(suppress=True)
-
-        # Load the model
-        severity_model = load_model("models/severity/severity_model.h5", compile=False)
-        parts_model = load_model("models/parts/parts_model.h5", compile=False)
-
-        # Load the labels
-        severity_class_names = open("models/severity/severity_labels.txt", "r").readlines()
-        parts_class_names = open("models/parts/parts_labels.txt", "r").readlines()
-
-        # Create the array of the right shape to feed into the keras model
-        # The 'length' or number of images you can put into the array is
-        # determined by the first position in the shape tuple, in this case 1
-        data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
-
-        # Replace this with the path to your image
-        image = Image.open(data_list['image_source']).convert("RGB")
-
-        # resizing the image to be at least 224x224 and then cropping from the center
-        size = (224, 224)
-        image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
-
-        # turn the image into a numpy array
-        image_array = np.asarray(image)
-
-        # Normalize the image
-        normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
-
-        # Load the image into the array
-        data[0] = normalized_image_array
-
-        # PART DETECTION
-        part_prediction = parts_model.predict(data)
-        index = np.argmax(part_prediction)
-        # data_part = parts_class_names[index]
-        data_list['part']=parts_class_names[index][2:].strip()
-        print("Index of part is", index)        
-        
-        #CATEGORY DETECTION
-        categoryList={
-            'Front':{0,6,4,7,10}, 
-            'Rear':{1,5,8,11},
-            'Side':{2,3,9}}
-        
-        for category,values in categoryList.items():
-            if index in values:
-                data_list['category'] = category
-
-        # SEVERITY DETECTION
-        severity_prediction = severity_model.predict(data)
-        index = np.argmax(severity_prediction)
-        data_severity = severity_class_names[index]
-        data_list['severity'] = data_severity[2:]
-
-        #COST DETECTION
-        costs = {'Minor':3000,'Moderate':10000,'Severe':100000}
-        myseverity = data_list['severity'].strip()
-        if (myseverity=='Minor'):
-            mycost = random.randint(100, costs.get(myseverity,'0'))
-        elif (myseverity=='Moderate'):
-            mycost = random.randint(3000, costs.get(myseverity,'0'))
-        elif (myseverity=='Severe'):
-            mycost = random.randint(10000, costs.get(myseverity,'0'))
-
-        data_list['cost']=str(mycost)
-
-        return data_list
-
+                    myindex = data.index(element)
+                    del data[myindex]
+                    break
     def generate_objectId(self, length):
         characters = string.ascii_letters + string.digits
         random_string = ''.join(random.choice(characters) for _ in range(length))
@@ -763,12 +766,8 @@ class Ckure(MDApp):
     def on_submit_report(self):
         reportTime = time.strftime("%d-%m-%Y")
         reportID= self.generate_objectId(self, 10)
-        # self.VAdetails['amount'] = self.total_cost
         user_id = firebaseauth.userID
         VArec_ref ='reports'
-        amount = screen_manager.get_screen('result').ids.cost.text
-        VADetails['Cost']=amount[4:]
-        # {"Cost":amount[4:]}.update(VADetails)
         firestoredb.reportTime=reportTime
     
         try:
@@ -811,31 +810,9 @@ class Ckure(MDApp):
 					],
 				)
         self.dialog.open()
-
-    def close_dialog(self, obj):
-        VArec_ref ='reports'
-        VADetails[0]['Status']='Disagreed'
-        specifics_ref=firestoredb.db.collection(VArec_ref).document(firestoredb.reportTime).set(VADetails[0])
-        self.dialog.dismiss()
-
-    def proceed(self, obj):
-        VArec_ref ='reports'
-        VADetails['Status']='Agreed'
-        specifics_ref=firestoredb.db.collection(VArec_ref).document(firestoredb.reportTime).set(VADetails[0])
-
-        self.dialog.dismiss()
-        screen_manager.transition.direction='left'
-        screen_manager.current = "success"
-
     def logout(self, button):
         screen_manager.get_screen('login').ids.email.text = ''
         screen_manager.get_screen('login').ids.password.text = ''
         screen_manager.current='login'
-
-    def on_start(self):
-        Clock.schedule_once(self.login, 5)
-
-    def login(self, *args):
-        screen_manager.current = "login"
 
 Ckure().run()
