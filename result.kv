@@ -55,14 +55,11 @@
         allow_stretch: True
         keep_ratio: True
         size_hint_y: 3
-
-    TwoLineIconListItem:
+    MDTextField:
         text: root.damage
-        secondary_text: root.confidence
-        font_style: "Button"
-
-        IconLeftWidget:
-            icon: 'car'
+        icon_left:'car'
+        multiline: True
+        disabled: True
        
     MDRectangleFlatIconButton:
         icon: "trash-can"

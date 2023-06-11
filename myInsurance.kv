@@ -19,6 +19,13 @@
                     size_hint_y: None
                     height: self.minimum_height + dp(10)
                     Fields:
+                        # IN-HOUSE OR STERLING
+                        id: insured_type
+                        hint_text: "INSURED TO"
+                        required: True
+                        on_focus: if self.focus: root.InsuranceMenu.open()
+                        icon_left: "file-outline"
+                    Fields:
                         id:agent
                         hint_text: "AGENT CODE"
                         required: True
@@ -35,27 +42,16 @@
                         icon_left: "calendar"
                     MDLabel:
                         text: "PERIOD OF INSURANCE:"
-                    MDGridLayout:
-                        cols: 2
-                        size_hint_y: None
-                        # height: self.minimum_height + dp(10)
-                        Fields:
-                            id: start
-                            hint_text: "From"
-                            required: True
-                            icon_left: "calendar"
-                        Fields:
-                            id: end
-                            hint_text: "To"
-                            required: True
-                            icon_left: "calendar"
-                    MDLabel:
-                        text: "PREMIUMS:"
                     Fields:
-                        id:premium
-                        hint_text: "INCLUSION"
+                        id: start
+                        hint_text: "From"
                         required: True
-                        icon_left: "file-outline"
+                        icon_left: "calendar"
+                    Fields:
+                        id: end
+                        hint_text: "To"
+                        required: True
+                        icon_left: "calendar"
                                                                     
             AnchorLayout:
                 padding: '10dp'

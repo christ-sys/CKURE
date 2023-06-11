@@ -7,7 +7,6 @@
             elevation: 0
             pos_hint: {"top": 1}
             md_bg_color:"#323B4E"
-            use_overflow: True
         BoxLayout:
             orientation: 'vertical'
             padding: ('15dp', '0dp', '15dp', '0dp')
@@ -24,6 +23,7 @@
                         id: vehicle_type
                         hint_text: "TYPE OF USE:"
                         required: True
+                        on_focus: if self.focus: root.VehicleMenu.open()
                         icon_left: "file-outline"
                     Fields:
                         id:file_no
@@ -70,40 +70,44 @@
                         id:model
                         hint_text: "MODEL/SERIES"
                         required: True
+                        icon_left: "car-info"
                     Fields:
                         id:year
                         hint_text: "YEAR MODEL"
                         required: True
+                        icon_left: "car-info"
                         
                     Fields:
                         id:body_type
                         hint_text: "BODY TYPE"
                         required: True
+                        icon_left: "car-info"
                     
                     Fields:
                         id:color
                         hint_text: "COLOR"
                         required: True
-                    Fields:
-                        id:capacity
-                        hint_text: "CAPACITY"
-                        required: True
+                        icon_left: "car-info"
                     Fields:
                         id:grosswt
                         hint_text: "GROSS WT."
                         required: True
+                        icon_left: "weight"
                     Fields:
                         id:netwt
                         hint_text: "NET WT."
                         required: True
+                        icon_left: "weight"
                     Fields:
                         id:shppngwt
                         hint_text: "SHIPPING WT."
                         required: True
+                        icon_left: "weight"
                     Fields:
                         id:netcap
                         hint_text: "NET CAPACITY"
                         required: True
+                        icon_left: "weight"
                                                                     
             AnchorLayout:
                 padding: '10dp'

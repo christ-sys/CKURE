@@ -10,7 +10,7 @@ from keras.models import load_model
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image as rawImage
@@ -34,7 +34,8 @@ from PIL import Image as pilImage
 from PIL import ImageOps
 from pytz import timezone
 from roboflow import Roboflow
-
+import pytz
+import os
 import firebaseauth
 import firestoredb
 
@@ -56,13 +57,6 @@ class Submitted(Screen):
 class CustomRecycleView(RecycleView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # self.data = [
-        #     {'image_source':str(i['image_source']),
-        #      'category':i['category'],
-        #      'part':i['part'],
-        #      'severity':i['severity'],
-        #      'cost':i['cost']} 
-        #     for i in Ckure.image_list]
         self.data = []
 class CustomCard(BoxLayout):
     image_source = StringProperty()
@@ -72,15 +66,12 @@ class CustomCard(BoxLayout):
     cost=StringProperty()
     damage = StringProperty()
     confidence = StringProperty()
-    location = StringProperty()
-    service = StringProperty()
 class Result(Screen):
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
 class someCard(MDCard):
     text=StringProperty()
-
 class SignUp(Screen):
     def __init__(self, **kw):
         super(SignUp, self).__init__(**kw)
@@ -113,6 +104,7 @@ class SignUp(Screen):
             caller=self.ids.gender,
             items=gender,
             width_mult=4,
+            elevation=0,
             position="center"
         )
     def validate_password(self):
@@ -208,7 +200,6 @@ class SignUp(Screen):
     def back(self):
         self.manager.current = "login"
 class Login(Screen):
-
     def myCredentials(self,user_id):
         if user_id:
             myScr = screen_manager.get_screen("home")
@@ -253,12 +244,12 @@ class Login(Screen):
             myCar.ids.shppngwt.text = myCarInfo.get('shppngwt')
             myCar.ids.netcap.text = myCarInfo.get('netcap')
             # MY CAR INSURANCE
+            myInsurance.ids.insured_type.text = myInsuranceInfo.get('insured_type')
             myInsurance.ids.agent.text = myInsuranceInfo.get('agent')
             myInsurance.ids.policy_no.text = myInsuranceInfo.get('policy_no')
             myInsurance.ids.date.text = myInsuranceInfo.get('date')
             myInsurance.ids.start.text = myInsuranceInfo.get('start')
             myInsurance.ids.end.text = myInsuranceInfo.get('end')
-            myInsurance.ids.premium.text = myInsuranceInfo.get('premium')
 
 
     def checkNewUser(self,user_id):
@@ -292,6 +283,27 @@ class Login(Screen):
                 size_hint_x=(Window.width - (10 * 2)) / Window.width
             ).open()
 class CarDetails(Screen):
+    def __init__(self, **kw):
+        super(CarDetails,self).__init__(**kw)
+        vehicleType = ['PRIVATE', 'COMMERCIAL']
+        vehicle= [
+            {
+                "text": f"{i}",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x=f"{i}": self.vehicleCallback(x),
+            } for i in vehicleType
+        ]
+
+        self.VehicleMenu = MDDropdownMenu(
+            caller=self.ids.vehicle_type,
+            items=vehicle,
+            width_mult=4,
+            elevation=0,
+            position="center"
+        )
+    def vehicleCallback(self,text_item):
+        self.ids.vehicle_type.text=text_item
+        
     current_date = time.strftime("%d-%m-%Y")
     current_time = time.strftime("%I:%M")
     def saveCarDetails(self):
@@ -312,7 +324,6 @@ class CarDetails(Screen):
                     "year": self.ids.year.text,
                     "body_type": self.ids.body_type.text,
                     "color": self.ids.color.text,
-                    "capacity": self.ids.capacity.text,
                     "grosswt": self.ids.grosswt.text,
                     "netwt": self.ids.netwt.text,
                     "shppngwt": self.ids.shppngwt.text,
@@ -338,6 +349,27 @@ class CarDetails(Screen):
                     size_hint_x=(Window.width - (10 * 2)) / Window.width
                 ).open()
 class InsuranceDetails(Screen):
+    def __init__(self, **kw):
+        super(InsuranceDetails,self).__init__(**kw)
+        insuredType = ['IN-HOUSE', 'STERLING']
+        insurance= [
+            {
+                "text": f"{i}",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x=f"{i}": self.insuranceCallback(x),
+            } for i in insuredType
+        ]
+
+        self.InsuranceMenu = MDDropdownMenu(
+            caller=self.ids.insured_type,
+            items=insurance,
+            width_mult=4,
+            height=2,
+            elevation=0,
+            position="center"
+        )
+    def insuranceCallback(self,text_item):
+        self.ids.insured_type.text=text_item
     current_date = time.strftime("%d-%m-%Y")
     current_time = time.strftime("%I:%M")
     def saveInsuranceDetails(self):
@@ -345,12 +377,12 @@ class InsuranceDetails(Screen):
         if user_id:
             try:
                 data = {
+                    "insured_type": self.ids.insured_type.text,
                     "agent": self.ids.agent.text,
                     "policy_no": self.ids.policy_no.text,
                     "date": self.ids.date.text,
                     "start": self.ids.start.text,
                     "end": self.ids.end.text,
-                    "premium": self.ids.premium.text,
                 }
                 user_ref = firestoredb.db.collection('users').document(user_id).collection('Account').document('InsuranceInfo')
                 user_ref.set(data)  
@@ -422,8 +454,6 @@ class Home(Screen, MDBoxLayout):
                 snackbar_y="10dp",
                 size_hint_x=(Window.width - (10 * 2)) / Window.width
             ).open()
-
-
     #MAIN SCREEN
     def Update_DataSrc(self, imgsrc):
         #CREATE A DICTIONARY FOR THE IMAGE AND RESULT
@@ -439,27 +469,52 @@ class Home(Screen, MDBoxLayout):
         data.append(image_data)
         rv.refresh_from_data()
         Ckure.total_cost(data)
-
     def Camera(self):
         self.cam = self.ids['camera']
         myImg = rawImage()
         timeStr = time.strftime("%Y%m%d_%H%M%S")
         self.cam.export_to_png("assets/Ckure {}.png".format(timeStr))
         myImg.source = "assets/Ckure {}.png".format(timeStr)
-
+        
         # TRIM IMAGE AND RELOAD IMAGE
         captured_image = pilImage.open(myImg.source) 
         crop_image = captured_image.crop(captured_image.getbbox())
         crop_image.save(myImg.source)
         myImg.reload()
-
-        self.Update_DataSrc(myImg.source)
-
+        
+        # self.Update_DataSrc(myImg.source)
         print('MyID: ' + firebaseauth.userID)
+        
+        # Perform predictions on the captured image
+        rf = Roboflow(api_key="6riPgDH2G6Wn2Lqa4MTC")
+        model = rf.workspace().project("ckure").version(4).model
+        response = model.predict(myImg.source, confidence=40, overlap=30).json()
 
-        #MOVE TO NEXT PAGE UPON CAPTURING
-        screen_manager.transition.direction='left'
-        self.manager.current = 'result'
+        if not response['predictions']:
+            data_list = {
+                'image_source': myImg.source,
+                'damage': 'No predictions found!',
+                'confidence': 'No predictions found!'
+            }
+            # Delete the image file
+            if os.path.exists(data_list['image_source']):
+                os.remove(data_list['image_source'])
+            dialog = MDDialog(
+                title="No Predictions Found",
+                text="No damage predictions were found for the image.",
+                buttons=[
+                    MDFlatButton(
+                        text="OK",
+                        on_release=lambda x: dialog.dismiss()
+                    )
+                ]
+            )
+            dialog.open()
+        else:
+            # Navigate to the results page
+            self.manager.current = 'result'
+            # Update the image source and perform detections
+            self.Update_DataSrc(myImg.source)
 class MyCar(Screen):
     def __init__(self, **kwargs):
         super(MyCar, self).__init__(**kwargs)
@@ -538,15 +593,34 @@ class MyInsurance(Screen):
             )
         )
         self.add_widget(self.app_bar)
+        insuredType = ['IN-HOUSE', 'STERLING']
+        insurance= [
+            {
+                "text": f"{i}",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x=f"{i}": self.insuranceCallback(x),
+            } for i in insuredType
+        ]
+
+        self.InsuranceMenu = MDDropdownMenu(
+            caller=self.ids.insured_type,
+            items=insurance,
+            width_mult=4,
+            height=2,
+            elevation=0,
+            position="center"
+        )
+    def insuranceCallback(self,text_item):
+        self.ids.insured_type.text=text_item
     def updateInsuranceInfo(self):
         try:
             data = {
+                "insured_type": self.ids.insured_type.text,
                 "agent": self.ids.agent.text,
                 "policy_no": self.ids.policy_no.text,
                 "date": self.ids.date.text,
                 "start": self.ids.start.text,
                 "end": self.ids.end.text,
-                "premium": self.ids.premium.text,
             }
 
             user_uid = firebaseauth.userID
@@ -570,8 +644,9 @@ class MyInsurance(Screen):
         self.manager.transition.direction='right'
         self.manager.current = "home"
 class Report(Screen):
-    current_date= time.strftime("%d-%m-%Y")
-    current_time = time.strftime("%I:%M")   
+    ph_tz = pytz.timezone('Asia/Manila')
+    current_date= time.strftime("%B %d, %Y")
+    current_time = time.strftime("%I:%M:%S %p")   
     def submitreport(self):
         rv = screen_manager.get_screen('result').ids.rv
         data = rv.data
@@ -615,12 +690,6 @@ class Report(Screen):
             VADetails.update(blotterDetails)
             Ckure.on_submit_report(Ckure)
             print(VADetails)
-            # dialog = MDDialog(
-            # title="Report Submitted",
-            # text="Your report has been submitted to PNP. Wait for the approval before you file a claim",
-            # buttons=[MDFlatButton(text="OK", on_release=lambda x: dialog.dismiss())]
-            # )
-            # dialog.open()
             self.manager.current = 'submitted'
         
         except:
@@ -635,6 +704,9 @@ class Report(Screen):
         screen_manager.transition.direction='right'
         screen_manager.current = "result"
 class MyReports(Screen):
+    approved_count = NumericProperty(0)
+    pending_count = NumericProperty(0)
+
     def on_pre_enter(self):
         user_uid = firebaseauth.userID
         reports = firestoredb.db.collection('reports')
@@ -643,18 +715,64 @@ class MyReports(Screen):
         reports_list.clear_widgets()
         pending_list = self.ids.pending
         pending_list.clear_widgets()
+        
+        approved_count = 0
+        pending_count = 0
+        
         for report in reports_query:
             report_data = report.to_dict()
-            print(report_data)
             date = "Date: " + report_data['Date']
             time = "Time: " + report_data['Time']
             location = "Location: " + report_data['Location']
-            if report_data['status']=="Approved":
-                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+            
+            if report_data['status'] == "Approved":
+                item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
+                item.bind(on_release=lambda instance: self.show_report_details(report_data))
                 reports_list.add_widget(item)
-            elif report_data['status']=="Pending":
-                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
+                approved_count += 1
+                if approved_count==0:
+                    image_widget = FitImage(source="assets/No data.png")
+                    reports_list.add_widget(image_widget)
+            elif report_data['status'] == "Pending":
+                item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
+                item.bind(on_release=lambda instance: self.show_report_details(report_data))
                 pending_list.add_widget(item)
+                pending_count += 1
+                if pending_count==0:
+                    image_widget = FitImage(source="assets/No data.png")
+                    reports_list.add_widget(image_widget)
+        
+        self.approved_count = approved_count
+        self.pending_count = pending_count
+    def show_report_details(self, report_data):
+        dialog_text = "Date: {}\nTime: {}\nLocation: {}\nStatus: {}".format(
+            report_data['Date'], report_data['Time'], report_data['Location'], report_data['status']
+        )
+        
+        dialog_buttons = [
+            MDFlatButton(
+                text="Close",
+                theme_text_color="Custom",
+                text_color="#323B4E",
+                on_release=lambda x: dialog.dismiss(),
+            )
+        ]
+        
+        if report_data['status'] == "Approved":
+            dialog_buttons.insert(0, MDFlatButton(
+                text="Submit Claim",
+                theme_text_color="Custom",
+                text_color="#323B4E",
+                on_release=lambda x: self.submit_claim(),
+            ))
+
+        dialog = MDDialog(
+            title="Report Details",
+            text=dialog_text,
+            buttons=dialog_buttons,
+        )
+        dialog.open()
+
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
@@ -745,18 +863,20 @@ class Ckure(MDApp):
             max_damage = predictions[0][1]
             data_list['damage'] = max_damage
             data_list['confidence'] = f"{max_confidence}%"
-            model.predict(data_list['image_source'], confidence=40, overlap=30).save("prediction.jpg")
+            model.predict(data_list['image_source'], confidence=40, overlap=30).save("prediction2.jpg")
+                
         return data_list
+
     def delete(self, x):
         rv = screen_manager.get_screen('result').ids.rv
         data = rv.data
-
         for element in data:
             for key, value in element.items():
                 if value == x:
                     myindex = data.index(element)
                     del data[myindex]
                     break
+        # screen_manager.current='home'
     def generate_objectId(self, length):
         characters = string.ascii_letters + string.digits
         random_string = ''.join(random.choice(characters) for _ in range(length))
@@ -814,5 +934,4 @@ class Ckure(MDApp):
         screen_manager.get_screen('login').ids.email.text = ''
         screen_manager.get_screen('login').ids.password.text = ''
         screen_manager.current='login'
-
 Ckure().run()
