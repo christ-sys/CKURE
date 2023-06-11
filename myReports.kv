@@ -13,10 +13,10 @@
             text_color_active: "lightgrey"
             MDBottomNavigationItem:
                 name: 'pending'
-                text: 'RENDING REPORTS'
+                text: 'PENDING REPORTS'
                 id: pending_count
                 icon: 'account'
-                # badge_icon:"numeric-"+root.count_reports()
+                badge_icon:"numeric-"+str(root.pending_count)
                 BoxLayout:
                     orientation: 'vertical'
                     padding: "10dp", "10dp", "10dp", "10dp"
@@ -34,7 +34,7 @@
                 id: approved_count
                 text: 'APPROVED REPORTS'
                 icon: 'file-document'
-                # badge_icon:"numeric-"+root.approved_reports()
+                badge_icon:"numeric-"+str(root.approved_count)
                 BoxLayout:
                     orientation: 'vertical'
                     padding: "10dp", "10dp", "10dp", "10dp"

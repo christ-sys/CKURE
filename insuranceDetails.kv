@@ -7,7 +7,6 @@
             elevation: 0
             pos_hint: {"top": 1}
             md_bg_color:"#323B4E"
-            use_overflow: True
         BoxLayout:
             orientation: 'vertical'
             padding: ('15dp', '0dp', '15dp', '0dp')
@@ -19,6 +18,13 @@
                     padding: "10dp", "10dp", "10dp", "50dp"
                     size_hint_y: None
                     height: self.minimum_height + dp(10)
+                    Fields:
+                        # IN-HOUSE OR STERLING
+                        id: insured_type
+                        hint_text: "INSURED TO"
+                        required: True
+                        on_focus: if self.focus: root.InsuranceMenu.open()
+                        icon_left: "file-outline"
                     Fields:
                         id:agent
                         hint_text: "AGENT CODE"
@@ -50,13 +56,6 @@
                             hint_text: "To"
                             required: True
                             icon_left: "calendar"
-                    MDLabel:
-                        text: "PREMIUMS:"
-                    Fields:
-                        id:premium
-                        hint_text: "INCLUSION"
-                        required: True
-                        icon_left: "file-outline"
                                                                     
             AnchorLayout:
                 padding: '10dp'
