@@ -55,6 +55,13 @@ class Content(BoxLayout):
         )
     def repairType_callBack(self,item):
         self.ids.rtype.text=item
+        
+
+        if item=="Repair":
+            self.ids.rcost.text="N/A"
+        else:
+            self.ids.rcost.text="0"
+
 
 class ReportDetails(Screen):
     dialog = None
@@ -75,8 +82,14 @@ class ReportDetails(Screen):
         container = self.ids.SmartTilecontainer
         name_label.secondary_text = self.report_data.get('Driver_Name', '')
         time_label.secondary_text = self.report_data.get('Time', '')
+        costs = self.report_data.get('Costs',0)
+        amount=0
+        for item in costs:
+            amount+=int(item)
+        self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(amount))
 
         for index,(img,panel,cost) in enumerate(zip(self.report_data.get('ImgRef',''),self.report_data.get('PanelsPart',''), self.report_data.get('Costs',''))):
+            
             mytile = MDSmartTile(
                 id="tile",
                 radius=24,
@@ -87,6 +100,8 @@ class ReportDetails(Screen):
                 size_hint = (1,None),
                 size = ("150dp", "150dp"),
             )
+            if mytile in container.children:
+                mytile.clear_widgets()
             mytile.add_widget(TwoLineListItem(
                 text=panel,
                 secondary_text = str(cost),
@@ -95,10 +110,9 @@ class ReportDetails(Screen):
                 text_color = '#ffffff',
                 secondary_text_color = '#808080'
                 ))
-        
-            container.add_widget(mytile)
             mytile.bind(on_release=lambda *args, idx=index: self.show_confirmation_dialog(idx))
-
+            container.add_widget(mytile)
+            
     def show_confirmation_dialog(self, index, *args):
         myidx=index
         print(myidx)
@@ -122,8 +136,29 @@ class ReportDetails(Screen):
             )
         self.dialog.open()
     
-    def estimated_cost(self,labor, replace):
-        sum = int(labor) + int(replace)
+    def ok_dialog(self, indx):
+        indx = Content.index
+        hours = self.dialog.content_cls.ids.lcost.text
+        rcost = self.dialog.content_cls.ids.rcost.text
+        type = self.dialog.content_cls.ids.rtype.text
+
+        amount = self.estimated_cost(type,hours,rcost)
+        Content.amount+=amount
+        myrecord_ref = firestoredb.db.collection('reports').document(self.report_id).get()
+        myrecord =myrecord_ref.to_dict()
+        costs = myrecord['Costs']
+        costs[indx]= amount
+        firestoredb.updateItemCost(costs,self.report_id)
+        self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(Content.amount)) 
+        self.dialog.dismiss()
+    
+    def estimated_cost(self,type,hours,replace):
+        x = 4500
+        y = 5500
+        labor = 560 * int(hours)
+        sum = x + y + labor
+        if type=="Replacement":
+            sum+=int(replace)
         return sum
         
     def submit_Estimation(self):
@@ -138,21 +173,16 @@ class ReportDetails(Screen):
         report_ref.set(report)
 
 
-    def ok_dialog(self, indx):
-        indx = Content.index
-        lcost = self.dialog.content_cls.ids.lcost.text
-        rcost = self.dialog.content_cls.ids.rcost.text
-        amount = self.estimated_cost(lcost,rcost)
-        myrecord_ref = firestoredb.db.collection('reports').document(self.report_id).get()
-        myrecord =myrecord_ref.to_dict()
-        costs = myrecord['Costs']
-        costs[indx]= amount
-        firestoredb.updateItemCost(costs,self.report_id)
-        self.dialog.dismiss()
+    
+        
 
     def back(self, button):
         self.manager.transition.direction='right'
         self.manager.current = "casa_reports"
+        
+        Content.index = 0
+        Content.amount = 0
+        Content.costs = []
         
 
 # ============================================

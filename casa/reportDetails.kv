@@ -56,6 +56,8 @@
                                     text_color:"white"
                                     halign: 'center'
                         
+                                
+
             MDRaisedButton:
                 text: "Submit Estimation"
                 mode: "rectangle"
@@ -84,7 +86,7 @@
 
     MDTextField:
         id: lcost
-        hint_text: "Labor Cost"
+        hint_text: "Hours"
         text:"0"
    
     MDTextField:
@@ -100,22 +102,3 @@
     radius: [15]
     size_hint: .9,None
     md_bg_color:"#607398"
-
-# <MySwiper@MDSwiperItem>
-
-#     RelativeLayout:
-
-#         FitImage:
-#             source: "./assets/cat.png"
-#             radius: [20,]
-
-#         MDBoxLayout:
-#             adaptive_height: True
-#             spacing: "12dp"
-#             MDLabel:
-#                 text: "MDLabel"
-#                 font_style: "H5"
-#                 size_hint_y: None
-#                 height: self.texture_size[1]
-#                 pos_hint: {"center_y": .5}
-#                 opposite_colors: True
