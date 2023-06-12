@@ -14,12 +14,16 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.imagelist import *
 from kivymd.uix.label import MDLabel
+from kivymd.uix.card import MDCard
+
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
+
+# from main import CustomCard
 
 sys.path.append('./imports')
 import firebaseauth
@@ -62,6 +66,8 @@ class Content(BoxLayout):
         else:
             self.ids.rcost.text="0"
 
+class CustomCard(MDCard):
+    pass
 
 class ReportDetails(Screen):
     dialog = None
@@ -75,21 +81,39 @@ class ReportDetails(Screen):
         self.report_data = firestoredb.get_report_details(report_id)
         self.report_labels(report_id)
 
-    def report_labels(self,id):
-        ph_tz = pytz.timezone('Asia/Manila')
-        name_label = self.ids.name_label
-        time_label = self.ids.time_label
+
+    def report_labels(self, id):
         container = self.ids.SmartTilecontainer
-        name_label.secondary_text = self.report_data.get('Driver_Name', '')
-        time_label.secondary_text = self.report_data.get('Time', '')
+        container.clear_widgets()
+
         costs = self.report_data.get('Costs',0)
         amount=0
         for item in costs:
             amount+=int(item)
-        self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(amount))
+
+        #design widgets
+        name = TwoLineIconListItem(
+            text = "Name",
+            secondary_text=str(self.report_data.get('Driver_Name', ''))
+        )
+        name.add_widget(IconLeftWidget(icon="account"))
+        time = TwoLineIconListItem(
+            text = "Time",
+            secondary_text=str(self.report_data.get('Time', ''))
+        )
+        time.add_widget(IconLeftWidget(icon="clock"))
+        priceCard = CustomCard()
+        box=MDBoxLayout(orientation='vertical')
+        amount = "{:,.2f}".format(amount)
+        priceLabel = MDLabel(font_size='18dp',bold=True, text= "Estimated Total Cost \n Php. {}".format(str(amount)),theme_text_color="Custom", text_color="white",halign="center")
+        box.add_widget(priceLabel)
+        priceCard.add_widget(box)
+
+        container.add_widget(name)
+        container.add_widget(time)
+        container.add_widget(priceCard)
 
         for index,(img,panel,cost) in enumerate(zip(self.report_data.get('ImgRef',''),self.report_data.get('PanelsPart',''), self.report_data.get('Costs',''))):
-            
             mytile = MDSmartTile(
                 id="tile",
                 radius=24,
@@ -100,8 +124,6 @@ class ReportDetails(Screen):
                 size_hint = (1,None),
                 size = ("150dp", "150dp"),
             )
-            if mytile in container.children:
-                mytile.clear_widgets()
             mytile.add_widget(TwoLineListItem(
                 text=panel,
                 secondary_text = str(cost),
@@ -112,10 +134,10 @@ class ReportDetails(Screen):
                 ))
             mytile.bind(on_release=lambda *args, idx=index: self.show_confirmation_dialog(idx))
             container.add_widget(mytile)
+
             
     def show_confirmation_dialog(self, index, *args):
         myidx=index
-        print(myidx)
         Content.index = index
         if not self.dialog:
             self.dialog = MDDialog(
@@ -126,6 +148,7 @@ class ReportDetails(Screen):
                     MDFlatButton(
                         text="CANCEL",
                         theme_text_color="Custom",
+                        on_release=lambda *args:self.dialog.dismiss()
                     ),
                     MDFlatButton(
                         text="OK",
@@ -149,8 +172,9 @@ class ReportDetails(Screen):
         costs = myrecord['Costs']
         costs[indx]= amount
         firestoredb.updateItemCost(costs,self.report_id)
-        self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(Content.amount)) 
+        # self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(Content.amount)) 
         self.dialog.dismiss()
+        self.report_details(self.report_id)
     
     def estimated_cost(self,type,hours,replace):
         x = 4500
