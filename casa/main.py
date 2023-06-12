@@ -13,6 +13,7 @@ from kivymd.uix.button import *
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.imagelist import *
+from kivymd.uix.label import MDLabel
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
@@ -27,17 +28,18 @@ import firestoredb
 
 Window.size = (350, 630)
 Builder.load_file("casalogin.kv")
-Builder.load_file("pnpReport.kv")
+Builder.load_file("casaReport.kv")
 Builder.load_file("reportDetails.kv")
 
 # ReportDetails
 
 class Content(BoxLayout):
+    index = 0
+    amount = 0
+    costs = []
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         repairlst=['Repair', 'Replacement']
-
         repairType= [
              {
                 "text": f"{i}",
@@ -45,14 +47,12 @@ class Content(BoxLayout):
                 "on_release": lambda x=f"{i}": self.repairType_callBack(x),
             } for i in repairlst
         ]
-
         self.repairMenu = MDDropdownMenu(
             caller=self.ids.rtype,
             items=repairType,
             width_mult=4,
             position="center"
         )
-
     def repairType_callBack(self,item):
         self.ids.rtype.text=item
 
@@ -62,23 +62,47 @@ class ReportDetails(Screen):
         super(ReportDetails, self).__init__(**kwargs)
         self.report_data = {}
         self.report_id = None
-    
 
     def report_details(self, report_id):
         self.report_id = report_id
         self.report_data = firestoredb.get_report_details(report_id)
-        self.report_labels()
-        self.getImages(report_id)
-    def report_labels(self):
+        self.report_labels(report_id)
+
+    def report_labels(self,id):
         ph_tz = pytz.timezone('Asia/Manila')
         name_label = self.ids.name_label
         time_label = self.ids.time_label
-        # title = self.ids.title
-        # title.title = self.report_data.get('Name', '')
+        container = self.ids.SmartTilecontainer
         name_label.secondary_text = self.report_data.get('Driver_Name', '')
         time_label.secondary_text = self.report_data.get('Time', '')
-    
-    def show_confirmation_dialog(self, *args):
+
+        for index,(img,panel,cost) in enumerate(zip(self.report_data.get('ImgRef',''),self.report_data.get('PanelsPart',''), self.report_data.get('Costs',''))):
+            mytile = MDSmartTile(
+                id="tile",
+                radius=24,
+                source=img,
+                box_radius = [0, 0, 24, 24],
+                box_color = [1, 1, 1, .2],
+                pos_hint = {"center_x": .5, "center_y": .5},
+                size_hint = (1,None),
+                size = ("150dp", "150dp"),
+            )
+            mytile.add_widget(TwoLineListItem(
+                text=panel,
+                secondary_text = str(cost),
+                pos_hint= {"center_y": .5},
+                _no_ripple_effect = True,
+                text_color = '#ffffff',
+                secondary_text_color = '#808080'
+                ))
+        
+            container.add_widget(mytile)
+            mytile.bind(on_release=lambda *args, idx=index: self.show_confirmation_dialog(idx))
+
+    def show_confirmation_dialog(self, index, *args):
+        myidx=index
+        print(myidx)
+        Content.index = index
         if not self.dialog:
             self.dialog = MDDialog(
                 title="Estimations",
@@ -88,77 +112,58 @@ class ReportDetails(Screen):
                     MDFlatButton(
                         text="CANCEL",
                         theme_text_color="Custom",
-                        # text_color=self.theme_cls.primary_color,
                     ),
                     MDFlatButton(
                         text="OK",
                         theme_text_color="Custom",
-                        on_release=self.ok_dialog
-                        # text_color=self.theme_cls.primary_color,
+                        on_release=lambda *args,idx=myidx: self.ok_dialog(idx)
                     ),
                 ],
             )
         self.dialog.open()
     
-    def getImages(self,id):
-        container = self.ids.SmartTilecontainer
-        container.clear_widgets()
-        
-        # mytile.add_widget(listitem)
-        myrecord = firestoredb.db.collection('reports').document(id).get()
-        myrecord =myrecord.to_dict()
-        for img,panel,cost in zip(myrecord['ImgRef'],myrecord['PanelsPart'],myrecord['Costs']):
-            mytile = MDSmartTile(
-            radius=24,
-            source=img,
-            box_radius = [0, 0, 24, 24],
-            box_color = [1, 1, 1, .2],
-            pos_hint = {"center_x": .5, "center_y": .5},
-            size_hint = (1,None),
-            size = ("150dp", "150dp"),
-            on_press = self.show_confirmation_dialog
-        )
-
-            mytile.add_widget(TwoLineListItem(
-            
-            text=panel,
-            secondary_text = cost,
-            pos_hint= {"center_y": .5},
-            _no_ripple_effect = True,
-            text_color = '#ffffff',
-            secondary_text_color = '#808080'
-            ))
-            
-            # mytile.bind()
-            container.add_widget(mytile)
-
     def estimated_cost(self,labor, replace):
         sum = int(labor) + int(replace)
         return sum
         
+    def submit_Estimation(self):
+        # Retrieve the report by ID
+        report_ref = firestoredb.db.collection('reports').document(self.report_id)
+        report = report_ref.get().to_dict()
 
-    
+        # Update the approved value for the report
+        report['status'] = "CASA_Approved"
 
-    def ok_dialog(self, *args):
-        # self.dialog.dismiss()
+        # Save the updated report to the database
+        report_ref.set(report)
+
+
+    def ok_dialog(self, indx):
+        indx = Content.index
         lcost = self.dialog.content_cls.ids.lcost.text
         rcost = self.dialog.content_cls.ids.rcost.text
         amount = self.estimated_cost(lcost,rcost)
-        self.ids.pricing.secondary_text = "Php.{}".format(amount)
+        myrecord_ref = firestoredb.db.collection('reports').document(self.report_id).get()
+        myrecord =myrecord_ref.to_dict()
+        costs = myrecord['Costs']
+        costs[indx]= amount
+        firestoredb.updateItemCost(costs,self.report_id)
         self.dialog.dismiss()
 
     def back(self, button):
         self.manager.transition.direction='right'
-        self.manager.current = "pnpreports"
+        self.manager.current = "casa_reports"
+        
+
 # ============================================
 # =================HOME PAGE=================
-class PnpReports(Screen):
+class CasaReports(Screen):
     def count_reports(self):
-        reports_col = firestoredb.get_reports()
+        reports_col = firestoredb.getReport_CASA()
         total = len(reports_col)
         return str(total)
     def approved_reports(self):
-        reports_col = firestoredb.get_approved_reports()
+        reports_col = firestoredb.get_approved_reports_casa()
         total = len(reports_col)
         return str(total)
     
@@ -173,12 +178,12 @@ class PnpReports(Screen):
             name_text = "Name: " + str(report['Driver_Name'])
             report_id_text = "Report ID: " + str(report['report_sender'])
             date_text = "Time: " + str(report['Time'])
-            if report['status'] == "Pending":
+            if report['status'] == "PNP_Approved":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 item.add_widget(IconRightWidget(icon="chevron-right"))
                 item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
                 reports_list.add_widget(item)
-            elif report['status'] == "Approved":
+            elif report['status'] == "CASA_Approved":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 approved_list.add_widget(item)
 
@@ -235,22 +240,17 @@ class AdminApp(MDApp):
         screen_manager = ScreenManager()
         screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
         screen_manager.add_widget(CasaLogin(name='casaLogin'))
-        screen_manager.add_widget(PnpReports(name='pnpreports'))
+        screen_manager.add_widget(CasaReports(name='casa_reports'))
         screen_manager.add_widget(ReportDetails(name='reportDetails'))
         self.theme_cls.theme_style = "Light"
         return screen_manager
     
 
 
-
-
-
-
-
     def on_start(self):
         Clock.schedule_once(self.login, 5)
     def login(self, *args):
-        screen_manager.current = "pnpreports"
+        screen_manager.current = "casa_reports"
     
 
     # AUTO RELOAD

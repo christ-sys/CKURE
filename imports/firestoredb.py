@@ -188,10 +188,17 @@ def get_damage(brand, model, part, severity):
 ###CASA####
 def getReport_CASA():
     report_ref = db.collection('reports')
-    query = report_ref.where('Status', '==', "Pending")
+    query = report_ref.where('status', '==', "PNP_Approved")
     report_docs = query.stream()
     report_pending = [report.id for report in report_docs]
     return report_pending
+
+def get_approved_reports_casa():
+    reports_ref = db.collection('reports')
+    query = reports_ref.where('status', '==', "CASA_Approved")
+    reports_docs = query.stream()
+    report_approved = [report.id for report in reports_docs]
+    return report_approved
 
 def updateItemCost(costArray,id):
     report_ref = db.collection('reports').document(id)
