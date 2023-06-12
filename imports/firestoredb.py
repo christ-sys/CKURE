@@ -105,13 +105,13 @@ def get_approved_claims():
     return claim_approved
 def get_reports():
     claims_ref = db.collection('reports')
-    query = claims_ref.where('Status', '==', "Pending")
+    query = claims_ref.where('status', '==', "Pending")
     claims_docs = query.stream()
     claim_pending = [claim.id for claim in claims_docs]
     return claim_pending
-def get_approved_reports():
+def get_approved_reports_pnp():
     reports_ref = db.collection('reports')
-    query = reports_ref.where('Status', '==', "Approved")
+    query = reports_ref.where('status', '==', "PNP_Approved")
     reports_docs = query.stream()
     report_approved = [report.id for report in reports_docs]
     return report_approved
@@ -183,3 +183,16 @@ def get_damage(brand, model, part, severity):
         cost_doc = doc.get().to_dict()
         estimated_cost.append(cost_doc)
     return estimated_cost
+
+
+###CASA####
+def getReport_CASA():
+    report_ref = db.collection('reports')
+    query = report_ref.where('Status', '==', "Pending")
+    report_docs = query.stream()
+    report_pending = [report.id for report in report_docs]
+    return report_pending
+
+def updateItemCost(costArray,id):
+    report_ref = db.collection('reports').document(id)
+    report_ref.update({'Costs': costArray})

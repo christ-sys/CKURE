@@ -56,6 +56,7 @@ class AdminLogin(Screen):
             self.manager.current='dashboard'
         except:
             self.show_error_dialog()
+            self.manager.current='dashboard'
 
     def show_error_dialog(self):
         ok_button = MDFlatButton(text="OK", on_release=self.dismiss_dialog)
@@ -86,7 +87,7 @@ class Reports(Screen):
         total = len(reports_col)
         return str(total)
     def approved_reports(self):
-        reports_col = firestoredb.get_approved_reports()
+        reports_col = firestoredb.get_approved_reports_pnp()
         total = len(reports_col)
         return str(total)
     def on_pre_enter(self):
@@ -97,15 +98,15 @@ class Reports(Screen):
         approved_list.clear_widgets()
         ph_tz = pytz.timezone('Asia/Manila')
         for report in reports:
-            name_text = "Name: " + str(report['Name'])
-            report_id_text = "Report ID: " + str(report['id'])
+            name_text = "Name: " + str(report['Driver_Name'])
+            report_id_text = "Report ID: " + str(report['report_sender'])
             date_text = "Time: " + str(report['Time'])
-            if report['Status'] == "Pending":
+            if report['status'] == "Pending":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 item.add_widget(IconRightWidget(icon="chevron-right"))
                 item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
                 reports_list.add_widget(item)
-            elif report['Status'] == "Approved":
+            elif report['status'] == "PNP_Approved":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 approved_list.add_widget(item)
     def on_select(self, report_id):
@@ -126,8 +127,8 @@ class ReportDetails(Screen):
         name_label = self.ids.name_label
         time_label = self.ids.time_label
         title = self.ids.title
-        title.title = self.report_data.get('Name', '')
-        name_label.secondary_text = self.report_data.get('Name', '')
+        title.title = self.report_data.get('Driver_Name', '')
+        name_label.secondary_text = self.report_data.get('Driver_Name', '')
         time_label.secondary_text = self.report_data.get('Time', '')
     
     def approve(self):
@@ -136,7 +137,7 @@ class ReportDetails(Screen):
         report = report_ref.get().to_dict()
 
         # Update the approved value for the report
-        report['Status'] = "Approved"
+        report['status'] = "PNP_Approved"
 
         # Save the updated report to the database
         report_ref.set(report)
