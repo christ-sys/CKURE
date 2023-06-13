@@ -110,20 +110,20 @@
                 #         app.root.current="accounts"
                 #     IconLeftWidget:
                 #         icon:"account"
-                OneLineIconListItem:
-                    text: 'CARS'
-                    on_press:
-                        root.nav_drawer.set_state("close")
-                        app.root.current="car_brand"
-                    IconLeftWidget:
-                        icon:"car"
-                GridLayout:
-                    id: box
-                    cols: 1
-                    height: self.minimum_height
-                    MDLabel:
-                        id: label
-                        text:""
+                # OneLineIconListItem:
+                #     text: 'CARS'
+                #     on_press:
+                #         root.nav_drawer.set_state("close")
+                #         app.root.current="car_brand"
+                #     IconLeftWidget:
+                #         icon:"car"
+                # GridLayout:
+                #     id: box
+                #     cols: 1
+                #     height: self.minimum_height
+                #     MDLabel:
+                #         id: label
+                #         text:""
         MDFloatingActionButton:
             text:"logout"
             icon: "power-standby"

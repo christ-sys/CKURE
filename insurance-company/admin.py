@@ -476,6 +476,10 @@ class Cardetails(Screen):
         self.manager.transition.direction='right'
         self.manager.current = "cars"
 class Claims(Screen):
+    approved_count = NumericProperty(0)
+    pending_count = NumericProperty(0)
+    reports = []
+    docs = firestoredb.db.collection('reports').get()
     def count_claims(self):
         claims_col = firestoredb.get_claims()
         total = len(claims_col)
