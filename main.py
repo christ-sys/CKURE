@@ -10,10 +10,11 @@ from keras.models import load_model
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, DictProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image as rawImage
+from kivy.uix.image import AsyncImage
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
 from kivymd.icon_definitions import md_icons
@@ -50,6 +51,7 @@ Builder.load_file("myInsurance.kv")
 Builder.load_file("blotter.kv")
 Builder.load_file("result.kv")
 Builder.load_file("myReports.kv")
+Builder.load_file("generateClaim.kv")
 Builder.load_file("submitted.kv")
 
 class Submitted(Screen):
@@ -206,6 +208,7 @@ class Login(Screen):
             myCar = screen_manager.get_screen("myCar")
             myInsurance = screen_manager.get_screen("myInsurance")
             myReport = screen_manager.get_screen("createReport")
+            generateClaim = screen_manager.get_screen("generateClaim")
             
             current_cred = firestoredb.db.collection('users').document(user_id).collection('Account').document('UserInfo').get()
             myCurrCred = current_cred.to_dict()
@@ -424,7 +427,6 @@ class Home(Screen, MDBoxLayout):
         date_dialog = MDDatePicker()
         date_dialog.bind(on_save=self.dateSelect_ok, on_cancel=self.dateSelect_cancel)
         date_dialog.open()
-
     def updateUserInfo(self):
         try:
             data={
@@ -651,6 +653,7 @@ class Report(Screen):
         rv = screen_manager.get_screen('result').ids.rv
         data = rv.data
         user_uid = firebaseauth.userID
+        name = firebaseauth.userName
         cloud_path=user_uid+"/"+time.strftime("%d-%m-%Y")
         img_urls=[]
         costs=[]
@@ -685,6 +688,7 @@ class Report(Screen):
                 "Witness_Age":self.ids.witness_age.text,
                 "Witness_Gender":self.ids.witness_gender.text,
                 "report_sender":user_uid,
+                "insurance_claimant":name,
                 "status": 'Pending'
             }
             VADetails.update(blotterDetails)
@@ -706,36 +710,35 @@ class Report(Screen):
 class MyReports(Screen):
     approved_count = NumericProperty(0)
     pending_count = NumericProperty(0)
-
     def on_pre_enter(self):
         user_uid = firebaseauth.userID
+        
+        # user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
         reports = firestoredb.db.collection('reports')
         reports_query = reports.where('report_sender', '==', user_uid).get()
         reports_list = self.ids.validated
         reports_list.clear_widgets()
         pending_list = self.ids.pending
         pending_list.clear_widgets()
-        
         approved_count = 0
         pending_count = 0
-        
         for report in reports_query:
             report_data = report.to_dict()
             date = "Date: " + report_data['Date']
             time = "Time: " + report_data['Time']
             location = "Location: " + report_data['Location']
             
-            if report_data['status'] == "Approved":
+            if report_data['status'] == "CASA_Approved":
                 item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
-                item.bind(on_release=lambda instance: self.show_report_details(report_data))
+                item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 reports_list.add_widget(item)
                 approved_count += 1
                 if approved_count==0:
                     image_widget = FitImage(source="assets/No data.png")
                     reports_list.add_widget(image_widget)
-            elif report_data['status'] == "Pending":
+            elif report_data['status'] == "Pending" or report_data['status'] == "PNP_Approves":
                 item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
-                item.bind(on_release=lambda instance: self.show_report_details(report_data))
+                item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 pending_list.add_widget(item)
                 pending_count += 1
                 if pending_count==0:
@@ -745,37 +748,127 @@ class MyReports(Screen):
         self.approved_count = approved_count
         self.pending_count = pending_count
     def show_report_details(self, report_data):
-        dialog_text = "Date: {}\nTime: {}\nLocation: {}\nStatus: {}".format(
-            report_data['Date'], report_data['Time'], report_data['Location'], report_data['status']
+        dialog_text = "Date: {}\n" \
+                    "Time: {}\n" \
+                    "Location: {}\n" \
+                    "Driver Name: {}\n" \
+                    "Driver Address: {}\n" \
+                    "Driver Age: {}\n" \
+                    "Driver Gender: {}\n" \
+                    "Driver License: {}\n" \
+                    "Vehicle: {}\n" \
+                    "Plate Number: {}\n" \
+                    "Witness Name: {}\n" \
+                    "Witness Address: {}\n" \
+                    "Witness Age: {}\n" \
+                    "Witness Gender: {}\n" \
+                    "Status: {}\n".format(
+            report_data['Date'],
+            report_data['Time'],
+            report_data['Location'],
+            report_data['Driver_Name'],
+            report_data['Driver_Address'],
+            report_data['Driver_Age'],
+            report_data['Driver_Gender'],
+            report_data['Driver_License'],
+            report_data['Vehicle'],
+            report_data['Plate_number'],
+            report_data['Witness_Name'],
+            report_data['Witness_Address'],
+            report_data['Witness_Age'],
+            report_data['Witness_Gender'],
+            report_data['status']
         )
-        
+
         dialog_buttons = [
             MDFlatButton(
                 text="Close",
                 theme_text_color="Custom",
-                text_color="#323B4E",
-                on_release=lambda x: dialog.dismiss(),
+                text_color="red",
+                on_release=lambda x: self.dialog.dismiss(),
             )
         ]
-        
-        if report_data['status'] == "Approved":
+
+        if report_data['status'] == "CASA_Approved":
             dialog_buttons.insert(0, MDFlatButton(
-                text="Submit Claim",
+                text="Create Insurance Claim",
                 theme_text_color="Custom",
                 text_color="#323B4E",
-                on_release=lambda x: self.submit_claim(),
+                on_release=lambda x: self.generate_claim(report_data)
             ))
 
-        dialog = MDDialog(
+        self.dialog = MDDialog(
             title="Report Details",
             text=dialog_text,
             buttons=dialog_buttons,
         )
-        dialog.open()
-
+        self.dialog.open()
+    def generate_claim(self, report_data):
+        self.dialog.dismiss()
+        screen_manager.current = "generateClaim"
+        generate_claim_screen = screen_manager.get_screen("generateClaim")
+        generate_claim_screen.display_report_details(report_data)
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
+class GenerateClaim(Screen):
+    
+    def display_report_details(self, report_data):  
+        self.ids.location.text = report_data['Location']
+        self.ids.date.text = report_data['Date']
+        self.ids.time.text = report_data['Time']
+        # The Assured
+        user_uid = firebaseauth.userID
+        # user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
+        user_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').get().to_dict()
+        self.ids.name.text = user_data['name']
+        self.ids.license.text = user_data['license_id']
+        self.ids.address.text = user_data['address']
+        # The Insured VEH
+        car_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document('CarInfo').get().to_dict()
+        insrnc_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document('InsuranceInfo').get().to_dict()
+        self.ids.policy_no.text = insrnc_data['policy_no']
+        self.ids.vehicle_type.text = car_data['vehicle_type']
+        self.ids.file_no.text = car_data['file_no']
+        self.ids.plate_no.text = car_data['plate_no']
+        self.ids.engine_no.text = car_data['engine_no']
+        self.ids.chassis_no.text = car_data['chassis_no']
+        self.ids.model.text = car_data['model']
+        self.ids.year.text = car_data['year']
+        self.ids.body_type.text = car_data['body_type']
+        self.ids.color.text = car_data['color']
+        # The Other VEH
+        self.ids.name1.text = report_data['Driver_Name']
+        self.ids.license1.text = report_data['Driver_License']
+        self.ids.address1.text = report_data['Driver_Address']
+        # The Witness
+        self.ids.witness_name.text = report_data['Witness_Name']
+        self.ids.witness_address.text = report_data['Witness_Address']
+        self.ids.witness_age.text = report_data['Witness_Age']
+        self.ids.witness_gender.text = report_data['Witness_Gender']
+    def submit(self):
+        try:
+            claim_data={
+                "Location": self.ids.location.text,
+                "Date": self.ids.date.text,
+                "Time": self.ids.time.text,
+                "Driver_Name": self.ids.name1.text,
+                "Driver_License": self.ids.license1.text,
+                "Driver_Address": self.ids.address1.text,
+                "Witness_Name": self.ids.witness_name.text,
+                "Witness_Address": self.ids.witness_address.text,
+                "Witness_Age": self.ids.witness_age.text,
+                "Witness_Gender": self.ids.witness_gender.text,
+                "Assured_Name":self.ids.name.text,
+                "Assured_License_No":self.ids.license.text,
+                "Assured_Address":self.ids.address.text
+            }
+            claim_ref = firestoredb.db.collection('claims').add(claim_data)
+        except:
+            print("error")
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "myReports"
 class MyCLaims(Screen):
     def on_pre_enter(self):
         user_uid = firebaseauth.userID
@@ -816,6 +909,7 @@ class Ckure(MDApp):
         screen_manager.add_widget(Home(name='home'))
         screen_manager.add_widget(MyCar(name='myCar'))
         screen_manager.add_widget(MyReports(name='myReports'))
+        screen_manager.add_widget(GenerateClaim(name='generateClaim'))
         screen_manager.add_widget(MyInsurance(name='myInsurance'))
         screen_manager.add_widget(Result(name='result'))
         screen_manager.add_widget(Report(name='createReport'))
