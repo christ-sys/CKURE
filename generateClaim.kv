@@ -1,0 +1,197 @@
+<GenerateClaim>:
+    name:"generateClaim"
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title:"Generate Car Insurance Claim"
+            font_style: 'Caption'
+            elevation: 0
+            pos_hint: {"top": 1}
+            md_bg_color:"#323B4E"
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+        BoxLayout:
+            orientation: 'vertical'
+            padding: "10dp", "10dp", "10dp", "10dp"
+            MDRelativeLayout:
+                ScrollView:
+                    size_hint: (1,1)
+                    MDGridLayout:
+                        cols: 1
+                        padding: "10dp", "10dp", "10dp", "0dp"
+                        size_hint_y: None
+                        height: self.minimum_height + dp(10)
+                        spacing: '25dp'
+                        MDLabel:
+                            text: 'The Accident'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: location
+                                hint_text: "Location"
+                                disabled: True
+                            MDGridLayout:
+                                cols: 2
+                                size_hint_y: None
+                                height: self.minimum_height + dp(10)
+                                
+                                MDTextField:
+                                    id: date
+                                    hint_text: "Date"
+                                    font_style:'Button'
+                                    disabled: True
+                                MDTextField:
+                                    id: time
+                                    hint_text: "Time"
+                                    font_style:'Button'
+                                    disabled: True
+                        MDLabel:
+                            text: 'The Assured'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: name
+                                hint_text: 'Name'
+                            MDTextField:
+                                id: license
+                                hint_text: 'Drivers License No.'
+                            MDTextField:
+                                id: address
+                                hint_text: 'Address'
+                        MDLabel:
+                            text: 'The Insured Vehicle'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: policy_no
+                                hint_text: "POLICY NO.:"
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id: vehicle_type
+                                hint_text: "TYPE OF USE:"
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id:file_no
+                                hint_text: "MV FILE NO."
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id:plate_no
+                                hint_text: "PLATE NO."
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id:engine_no
+                                hint_text: "ENGINE/MOTOR NO."
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id:chassis_no
+                                hint_text: "SERIAL/CHASSIS NO."
+                                icon_left: "file-outline"
+                            MDTextField:
+                                id:model
+                                hint_text: "MODEL/SERIES"
+                                icon_left: "car-info"
+                            MDTextField:
+                                id:year
+                                hint_text: "YEAR MODEL"
+                                icon_left: "car-info"
+                            MDTextField:
+                                id:body_type
+                                hint_text: "BODY TYPE"
+                                icon_left: "car-info"
+                            MDTextField:
+                                id:color
+                                hint_text: "COLOR"
+                                icon_left: "car-info"
+                        MDLabel:
+                            text: 'The Other Vehicle'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: name1
+                                hint_text: 'Driver/Owner Name'
+                            MDTextField:
+                                id: license1
+                                hint_text: 'Drivers License No.'
+                            MDTextField:
+                                id: address1
+                                hint_text: 'Address'
+                        MDLabel:
+                            text: 'The Witness'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id:witness_name
+                                hint_text: "Name"
+                            MDTextField:
+                                id:witness_address
+                                hint_text: "Address"
+                            MDTextField:
+                                id:witness_age
+                                hint_text: "Age"
+                            MDTextField:
+                                id:witness_gender
+                                hint_text: "Gender"
+                        MDLabel:
+                            text: 'The Claim'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#d9ead3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: panels
+                                disabled: True
+
+                            MDTextField:
+                                id: imgRef
+                                disabled: True
+
+                            MDTextField:
+                                id: cost
+                                disabled: True
+
+                            MDTextField:
+                                disabled: True
+                        MDRaisedButton:
+                            text: "Submit for Validation"
+                            font_style:"Button"
+                            text_color: "white"
+                            halign: 'center'
+                            font_size: '20sp'
+                            size_hint_x: 0.9
+                            radius: 1,1
+                            elevation: 0
+                            md_bg_color: "#607398"
+                            on_press: root.submit()

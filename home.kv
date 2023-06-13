@@ -21,105 +21,93 @@
                     ScrollView:
                         size_hint: (1,1)
                         MDGridLayout:
-                            cols: 2
+                            cols: 1
                             spacing: "8dp"
                             padding: "10dp", "10dp", "10dp", "50dp"
                             size_hint_y: None
-                            height: self.minimum_height + dp(10)
-                            MDCard:
-                                orientation: 'vertical'
-                                orientation: 'vertical'
-                                padding: '8dp'
-                                height: '100dp'
-                                border_radius: 20
-                                radius: [15]
-                                size_hint: .9,None
-                                md_bg_color:"#caf0f8"
-                                ripple_behavior: True
-                                on_press: 
-                                    root.manager.current='myCar'
-                                    root.manager.transition.direction='left'
-                                AnchorLayout:
-                                    anchor_y: 'top'
-                                    anchor_x: 'center'
-                                    # padding: ('0dp', '20dp', '0dp', '0dp')
-                                    MDIcon:
-                                        font_size: '50dp'
-                                        icon: "car"
-                                        # badge_icon: "numeric-"+root.count_reports()
-                                        # badge_bg_color: "#323B4E"
-                                    MDLabel:
-                                        font_size: '18dp'
-                                        text: "MY CAR"
-                                        font_style:"Caption"
-                                        valign:"bottom"
-                                        halign: "center"
-                                        padding: ('0dp', '30dp', '0dp', '0dp')
-                            MDCard:
-                                orientation: 'vertical'
-                                orientation: 'vertical'
-                                padding: '8dp'
-                                height: '100dp'
-                                border_radius: 20
-                                radius: [15]
-                                size_hint: .9,None
-                                md_bg_color:"#caf0f8"
-                                ripple_behavior: True
-                                on_press: root.manager.current='myInsurance'
-                                AnchorLayout:
-                                    anchor_y: 'top'
-                                    anchor_x: 'center'
-                                    # padding: ('0dp', '20dp', '0dp', '0dp')
-                                    MDIcon:
-                                        font_size: '50dp'
-                                        icon: "car"
-                                        # badge_icon: "numeric-"+root.count_reports()
-                                        # badge_bg_color: "#323B4E"
-                                    MDLabel:
-                                        font_size: '18dp'
-                                        text: "MY CAR INSURANCE"
-                                        font_style:"Caption"
-                                        valign:"bottom"
-                                        halign: "center"
-                                        padding: ('0dp', '30dp', '0dp', '0dp')
-                            MDLabel:
-                                text: 'MY REPORTS'
-                                font_style:'Button'
-                            MDLabel:
-                                text: 'MY CLAIMS'
-                                font_style:'Button'
+                            height: self.minimum_height
+                            MDGridLayout:
+                                cols:2
+                                spacing: "8dp"
+                                padding: "10dp", "10dp", "10dp", "50dp"
+                                size_hint_y: None
+                                height: self.minimum_height
+                                MDCard:
+                                    orientation: 'vertical'
+                                    orientation: 'vertical'
+                                    padding: '8dp'
+                                    height: '100dp'
+                                    border_radius: 20
+                                    radius: [15]
+                                    size_hint: .9,None
+                                    md_bg_color:"#caf0f8"
+                                    ripple_behavior: True
+                                    on_press: 
+                                        root.manager.current='myCar'
+                                        root.manager.transition.direction='left'
+                                    AnchorLayout:
+                                        anchor_y: 'top'
+                                        anchor_x: 'center'
+                                        # padding: ('0dp', '20dp', '0dp', '0dp')
+                                        MDIcon:
+                                            font_size: '50dp'
+                                            icon: "car"
+                                        MDLabel:
+                                            font_size: '18dp'
+                                            text: "MY CAR"
+                                            font_style:"Caption"
+                                            valign:"bottom"
+                                            halign: "center"
+                                            padding: ('0dp', '30dp', '0dp', '0dp')
+                                MDCard:
+                                    orientation: 'vertical'
+                                    orientation: 'vertical'
+                                    padding: '8dp'
+                                    height: '100dp'
+                                    border_radius: 20
+                                    radius: [15]
+                                    size_hint: .9,None
+                                    md_bg_color:"#caf0f8"
+                                    ripple_behavior: True
+                                    on_press: root.manager.current='myInsurance'
+                                    AnchorLayout:
+                                        anchor_y: 'top'
+                                        anchor_x: 'center'
+                                        MDIcon:
+                                            font_size: '50dp'
+                                            icon: "car"
+                                        MDLabel:
+                                            font_size: '18dp'
+                                            text: "MY CAR INSURANCE"
+                                            font_style:"Caption"
+                                            valign:"bottom"
+                                            halign: "center"
+                                            padding: ('0dp', '30dp', '0dp', '0dp')
                             MDRectangleFlatIconButton:
                                 md_bg_color:"#6FA8DC"
                                 size_hint_x:.9
                                 elevation:0
                                 line_color: 0, 0, 0, 0
                                 on_press: root.manager.current='myReports'
+                                text: 'Reports History'                                    
                                 MDIcon:
                                     icon:'file'
                                     icon_color:"white"
+                                    # badge_icon: "numeric-"+root.count_reports()
+                                    badge_bg_color: "#323B4E"
                             MDRectangleFlatIconButton:
                                 md_bg_color:"#6FA8DC"
                                 size_hint_x:.9
                                 elevation:0
                                 line_color: 0, 0, 0, 0
+                                text: 'My Claims'
                                 MDIcon:
                                     icon:'file'
                                     icon_color:"white"
-
-            # MDBottomNavigationItem:
-            #     name: 'reports'
-            #     text: 'Reports'
-            #     icon: 'file-document'
-                
-            #     GridLayout:
-            #         cols:1
-            #         MDList:
-            #             id: historyList
-
             MDBottomNavigationItem:
                 name: 'scan'
                 text: 'Diagnose'
-                icon: 'car-emergency'
+                icon: 'camera'
                 BoxLayout:
                     orientation: 'vertical'
                     padding: '12dp'
