@@ -15,6 +15,7 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.imagelist import *
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
+from kivymd.uix.tab import MDTabsBase
 
 
 from kivy.uix.boxlayout import BoxLayout
@@ -36,6 +37,11 @@ Builder.load_file("casaReport.kv")
 Builder.load_file("reportDetails.kv")
 
 # ReportDetails
+class InformationTab(MDBoxLayout, MDTabsBase):
+    pass
+
+class ImageTab(MDBoxLayout, MDTabsBase):
+    pass
 
 class Content(BoxLayout):
     index = 0
@@ -57,6 +63,8 @@ class Content(BoxLayout):
             width_mult=4,
             position="center"
         )
+
+        
     def repairType_callBack(self,item):
         self.ids.rtype.text=item
         
@@ -65,6 +73,7 @@ class Content(BoxLayout):
             self.ids.rcost.text="N/A"
         else:
             self.ids.rcost.text="0"
+
 
 class CustomCard(MDCard):
     pass
@@ -76,42 +85,22 @@ class ReportDetails(Screen):
         self.report_data = {}
         self.report_id = None
 
-    def report_details(self, report_id):
-        self.report_id = report_id
-        self.report_data = firestoredb.get_report_details(report_id)
-        self.report_labels(report_id)
-
-
-    def report_labels(self, id):
+    def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label, tab_text):
         container = self.ids.SmartTilecontainer
         container.clear_widgets()
-
         costs = self.report_data.get('Costs',0)
         amount=0
         for item in costs:
             amount+=int(item)
 
-        #design widgets
-        name = TwoLineIconListItem(
-            text = "Name",
-            secondary_text=str(self.report_data.get('Driver_Name', ''))
-        )
-        name.add_widget(IconLeftWidget(icon="account"))
-        time = TwoLineIconListItem(
-            text = "Time",
-            secondary_text=str(self.report_data.get('Time', ''))
-        )
-        time.add_widget(IconLeftWidget(icon="clock"))
         priceCard = CustomCard()
         box=MDBoxLayout(orientation='vertical')
         amount = "{:,.2f}".format(amount)
         priceLabel = MDLabel(font_size='18dp',bold=True, text= "Estimated Total Cost \n Php. {}".format(str(amount)),theme_text_color="Custom", text_color="white",halign="center")
         box.add_widget(priceLabel)
         priceCard.add_widget(box)
-
-        container.add_widget(name)
-        container.add_widget(time)
         container.add_widget(priceCard)
+        
 
         for index,(img,panel,cost) in enumerate(zip(self.report_data.get('ImgRef',''),self.report_data.get('PanelsPart',''), self.report_data.get('Costs',''))):
             mytile = MDSmartTile(
@@ -134,6 +123,35 @@ class ReportDetails(Screen):
                 ))
             mytile.bind(on_release=lambda *args, idx=index: self.show_confirmation_dialog(idx))
             container.add_widget(mytile)
+    def report_details(self, report_id):
+        self.report_id = report_id
+        self.report_data = firestoredb.get_report_details(report_id)
+        self.report_labels()
+
+    def report_labels(self):
+        self.ids.date_label.secondary_text=self.report_data.get('Date', '')
+        self.ids.time_label.secondary_text=self.report_data.get('Time', '')
+        self.ids.sender_label.secondary_text=self.report_data.get('report_sender', '')
+        self.ids.location_label.secondary_text=self.report_data.get('Location', '')
+        self.ids.status_label.secondary_text=self.report_data.get('status', '')
+        
+        #driver
+        self.ids.name_label.secondary_text=self.report_data.get('Driver_Name', '')
+        self.ids.daddress_label.secondary_text=self.report_data.get('Driver_Address', '')
+        self.ids.age_label.secondary_text=self.report_data.get('Driver_Age', '')
+        self.ids.gender_label.secondary_text=self.report_data.get('Driver_Gender', '')
+        self.ids.licence_label.secondary_text=self.report_data.get('Driver_License', '')
+        self.ids.vehicle_label.secondary_text=self.report_data.get('Vehicle', '')
+        self.ids.plate_label.secondary_text=self.report_data.get('Plate_number', '')
+
+        #witness
+        self.ids.wname_label.secondary_text=self.report_data.get('Witness_Name', '')
+        self.ids.waddress_label.secondary_text=self.report_data.get('Witness_Address', '')
+        self.ids.wage_label.secondary_text=self.report_data.get('Witness_Age', '')
+        self.ids.wgender_label.secondary_text=self.report_data.get('Witness_Gender', '')
+        
+
+        
 
             
     def show_confirmation_dialog(self, index, *args):
@@ -175,7 +193,9 @@ class ReportDetails(Screen):
         # self.ids.pricing.text =  "Estimated Total Cost \n Php. {}.00".format(str(Content.amount)) 
         self.dialog.dismiss()
         self.report_details(self.report_id)
-    
+        tab2 = self.ids.tabs.get_tab_list()[0]
+        self.ids.tabs.switch_tab(tab2)
+
     def estimated_cost(self,type,hours,replace):
         x = 4500
         y = 5500

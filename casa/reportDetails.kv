@@ -10,69 +10,203 @@
             use_overflow: True
             left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
 
-        BoxLayout:
-            orientation: 'vertical'
-            padding: "10dp", "10dp", "10dp", "50dp"
-            height: self.minimum_height
-            MDGridLayout:
-                cols:1
-                height: self.minimum_height+dp(30)
-                padding: dp(3)
-                
-                ScrollView:
-                    size_hint: (1,1)
-                    
+        MDTabs:
+            id:tabs
+            on_tab_switch:root.on_tab_switch(*args)
+
+            InformationTab:
+                title: "Information"
+                icon: "information"
+
+                name: "information"
+            
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    height: self.minimum_height
                     MDGridLayout:
-                        cols: 1
-                        size_hint_y: None
-                        height: self.minimum_height
-                        id: SmartTilecontainer
-                        spacing: dp(18)
-
-                        TwoLineIconListItem:
-                            id: name_label
-                            text:"Name"
-                            secondary_text: ""
-                            IconLeftWidget:
-                                icon: "account"
-                        TwoLineIconListItem:
-                            id: time_label
-                            text:"Time of the Report"
-                            secondary_text: ""
-                            IconLeftWidget:
-                                icon: "clock"
+                        cols:1
+                        height: self.minimum_height+dp(30)
+                        padding: dp(3)
                         
-                        CustomCard:
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                id:mycustomCard
+                        ScrollView:
+                            size_hint: (1,1)
+                            
+                            MDGridLayout:
+                                cols: 1
+                                size_hint_y: None
+                                height: self.minimum_height
+                                id: SmartTilecontainer
+                                spacing: dp(18)
 
-                                MDLabel:
-                                    id: pricing
-                                    font_size: '18dp'
-                                    bold: True
-                                    text: "Estimated Total Cost \n Php. 10.000"
-                                    theme_text_color:"Custom"
-                                    text_color:"white"
-                                    halign: 'center'
+                                TwoLineIconListItem:
+                                    id: date_label
+                                    text:"Date of the Report"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "calendar"
+
+                                TwoLineIconListItem:
+                                    id: time_label
+                                    text:"Time of the Report"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "clock"
+                                
+                                TwoLineIconListItem:
+                                    id: sender_label
+                                    text:"Report Sender"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "account-arrow-right"
+                                
+                                TwoLineIconListItem:
+                                    id: location_label
+                                    text:"Location"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "sign-direction"
+                                
+                                TwoLineIconListItem:
+                                    id: status_label
+                                    text:"Report Status"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "alert-circle-outline"
+                                
+                                
+                                TwoLineIconListItem:
+                                    id: name_label
+                                    text:"Driver Name"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "account"
+                        
+                                TwoLineIconListItem:
+                                    id: daddress_label
+                                    text:"Driver Address"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "home-account"
+                                TwoLineIconListItem:
+                                    id: age_label
+                                    text:"Driver Age"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "account-clock"
+                                
+                                TwoLineIconListItem:
+                                    id: gender_label
+                                    text:"Driver Gender"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "gender-male-female"
+                                TwoLineIconListItem:
+                                    id: licence_label
+                                    text:"Driver License No."
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "license"
+
+                                TwoLineIconListItem:
+                                    id: vehicle_label
+                                    text:"Vehicle"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "car-info"
+                                TwoLineIconListItem:
+                                    id: plate_label
+                                    text:"Plate number"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "pound-box-outline"
+                                
+
+                                #WITNESS
+                                TwoLineIconListItem:
+                                    id: wname_label
+                                    text:"Witness Name"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "account"
+                        
+                                TwoLineIconListItem:
+                                    id: waddress_label
+                                    text:"Witness Address"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "home-account"
+                                TwoLineIconListItem:
+                                    id: wage_label
+                                    text:"Witness Age"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "account-clock"
+                                
+                                TwoLineIconListItem:
+                                    id: wgender_label
+                                    text:"Witness Gender"
+                                    secondary_text: ""
+                                    IconLeftWidget:
+                                        icon: "gender-male-female"
+
+                               
+                        
+            ImageTab:
+                title: "Images"
+                icon: "image"
+
+                name: "gallery"
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "10dp", "10dp", "10dp", "50dp"
+                    height: self.minimum_height
+                    MDGridLayout:
+                        cols:1
+                        height: self.minimum_height+dp(30)
+                        padding: dp(3)
+                        
+                        ScrollView:
+                            size_hint: (1,1)
+                            
+                            MDGridLayout:
+                                cols: 1
+                                size_hint_y: None
+                                height: self.minimum_height
+                                id: SmartTilecontainer
+                                spacing: dp(18)
+                                CustomCard:
+                                    MDBoxLayout:
+                                        orientation: 'vertical'
+                                        id:mycustomCard
+
+                                        MDLabel:
+                                            id: pricing
+                                            font_size: '18dp'
+                                            bold: True
+                                            text: "Estimated Total Cost \n Php. 10.000"
+                                            theme_text_color:"Custom"
+                                            text_color:"white"
+                                            halign: 'center'
                         
                                 
 
-            MDRaisedButton:
-                text: "Submit Estimation"
-                mode: "rectangle"
-                text_color: "white"
-                # halign: 'center'
-                font_size: '18sp'
-                size_hint_x: 1
-                pos_hint: {"center_y": 1}
-                elevation: 0
-                md_bg_color:"#607398"
-                padding: dp(10)
-                on_press: root.submit_Estimation()
-                on_release:
-                    app.root.current="casa_reports"
-                    root.manager.transition.direction="left"
+                    MDRaisedButton:
+                        text: "Submit Estimation"
+                        mode: "rectangle"
+                        text_color: "white"
+                        # halign: 'center'
+                        font_size: '18sp'
+                        size_hint_x: 1
+                        pos_hint: {"center_y": 1}
+                        elevation: 0
+                        md_bg_color:"#607398"
+                        padding: dp(10)
+                        on_press: root.submit_Estimation()
+                        on_release:
+                            app.root.current="casa_reports"
+                            root.manager.transition.direction="left"
 
 <Content>:
     orientation: "vertical"
