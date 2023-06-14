@@ -83,27 +83,21 @@
                                             valign:"bottom"
                                             halign: "center"
                                             padding: ('0dp', '30dp', '0dp', '0dp')
-                            MDRectangleFlatIconButton:
-                                md_bg_color:"#6FA8DC"
-                                size_hint_x:.9
-                                elevation:0
-                                line_color: 0, 0, 0, 0
-                                on_press: root.manager.current='myReports'
-                                text: 'Reports History'                                    
-                                MDIcon:
-                                    icon:'file'
-                                    icon_color:"white"
-                                    # badge_icon: "numeric-"+root.count_reports()
-                                    badge_bg_color: "#323B4E"
-                            MDRectangleFlatIconButton:
-                                md_bg_color:"#6FA8DC"
-                                size_hint_x:.9
-                                elevation:0
-                                line_color: 0, 0, 0, 0
-                                text: 'My Claims'
-                                MDIcon:
-                                    icon:'file'
-                                    icon_color:"white"
+                                MDRaisedButton:
+                                    md_bg_color:"#6FA8DC"
+                                    size_hint_x:.9
+                                    elevation:0
+                                    line_color: 0, 0, 0, 0
+                                    on_press: root.manager.current='myReports'
+                                    text: 'Reports History'  
+                                    font_style: "Button"                                  
+                                MDRaisedButton:
+                                    md_bg_color:"#6FA8DC"
+                                    size_hint_x:.9
+                                    elevation:0
+                                    line_color: 0, 0, 0, 0
+                                    text: 'My Claims'
+                                    font_style: "Button"
             MDBottomNavigationItem:
                 name: 'scan'
                 text: 'Diagnose'

@@ -164,26 +164,14 @@
                             text: 'The Claim'
                             font_style: 'H6'
                         MDBoxLayout:
+                            id: img_container
                             orientation: 'vertical'
-                            md_bg_color:"#d9ead3"
+                            md_bg_color:"white"
                             size_hint_y: None
-                            padding: "10dp", "0dp", "10dp", "10dp"
-                            height: self.minimum_height + dp(20)
-                            radius: 10
-                            MDTextField:
-                                id: panels
-                                disabled: True
-
-                            MDTextField:
-                                id: imgRef
-                                disabled: True
-
-                            MDTextField:
-                                id: cost
-                                disabled: True
-
-                            MDTextField:
-                                disabled: True
+                            height: self.minimum_height
+                            size_hint: .9,None
+                            padding: ('10dp', '30dp', '10dp', '30dp')
+                            spacing: '18dp'
                         MDRaisedButton:
                             text: "Submit for Validation"
                             font_style:"Button"
