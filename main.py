@@ -10,7 +10,7 @@ from keras.models import load_model
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty, DictProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ColorProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image as rawImage
@@ -39,6 +39,10 @@ import pytz
 import os
 import firebaseauth
 import firestoredb
+from kivymd.uix.swiper import *
+from kivymd.uix.imagelist import MDSmartTile
+from kivymd.uix.fitimage import FitImage
+from kivymd.uix.textfield import MDTextField
 
 Window.size = (350, 630)
 Builder.load_file("login.kv")
@@ -654,6 +658,7 @@ class Report(Screen):
         data = rv.data
         user_uid = firebaseauth.userID
         name = firebaseauth.userName
+        name = firebaseauth.userName
         cloud_path=user_uid+"/"+time.strftime("%d-%m-%Y")
         img_urls=[]
         costs=[]
@@ -688,6 +693,7 @@ class Report(Screen):
                 "Witness_Age":self.ids.witness_age.text,
                 "Witness_Gender":self.ids.witness_gender.text,
                 "report_sender":user_uid,
+                "sender_name": name,
                 "insurance_claimant":name,
                 "status": 'Pending'
             }
@@ -711,9 +717,9 @@ class MyReports(Screen):
     approved_count = NumericProperty(0)
     pending_count = NumericProperty(0)
     def on_pre_enter(self):
-        user_uid = firebaseauth.userID
+        # user_uid = firebaseauth.userID
         
-        # user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
+        user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
         reports = firestoredb.db.collection('reports')
         reports_query = reports.where('report_sender', '==', user_uid).get()
         reports_list = self.ids.validated
@@ -733,20 +739,24 @@ class MyReports(Screen):
                 item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 reports_list.add_widget(item)
                 approved_count += 1
-                if approved_count==0:
-                    image_widget = FitImage(source="assets/No data.png")
-                    reports_list.add_widget(image_widget)
             elif report_data['status'] == "Pending" or report_data['status'] == "PNP_Approves":
                 item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
                 item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 pending_list.add_widget(item)
                 pending_count += 1
-                if pending_count==0:
-                    image_widget = FitImage(source="assets/No data.png")
-                    reports_list.add_widget(image_widget)
-        
         self.approved_count = approved_count
         self.pending_count = pending_count
+        
+        if approved_count == 0:
+            image_widget = FitImage(source="assets/2953962.jpg",size_hint = (1,None),
+                size = ("300dp", "300dp"), opacity=.5)
+            reports_list.add_widget(image_widget)
+
+        if pending_count == 0:
+            image_widget = FitImage(source="assets/2953962.jpg",size_hint = (1,None),
+                size = ("300dp", "300dp"), opacity=.5)
+            pending_list.add_widget(image_widget)
+            
     def show_report_details(self, report_data):
         dialog_text = "Date: {}\n" \
                     "Time: {}\n" \
@@ -761,8 +771,7 @@ class MyReports(Screen):
                     "Witness Name: {}\n" \
                     "Witness Address: {}\n" \
                     "Witness Age: {}\n" \
-                    "Witness Gender: {}\n" \
-                    "Status: {}\n".format(
+                    "Witness Gender: {}\n".format(
             report_data['Date'],
             report_data['Time'],
             report_data['Location'],
@@ -777,7 +786,6 @@ class MyReports(Screen):
             report_data['Witness_Address'],
             report_data['Witness_Age'],
             report_data['Witness_Gender'],
-            report_data['status']
         )
 
         dialog_buttons = [
@@ -812,8 +820,7 @@ class MyReports(Screen):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
 class GenerateClaim(Screen):
-    
-    def display_report_details(self, report_data):  
+    def display_report_details(self, report_data):
         self.ids.location.text = report_data['Location']
         self.ids.date.text = report_data['Date']
         self.ids.time.text = report_data['Time']
@@ -846,26 +853,102 @@ class GenerateClaim(Screen):
         self.ids.witness_address.text = report_data['Witness_Address']
         self.ids.witness_age.text = report_data['Witness_Age']
         self.ids.witness_gender.text = report_data['Witness_Gender']
+        # The Claim
+        image_urls = report_data['ImgRef']
+        panels = report_data['PanelsPart']
+        costs = report_data['Costs']
+        total_cost = sum(costs)
+        self.ids.img_container.clear_widgets()
+        for url, panel, cost in zip(image_urls, panels, costs):
+            image_item = AsyncImage(source=url, size_hint=(1, None), size=("200dp", "200dp"))
+            panels = MDLabel(
+                text=panel,
+                font_style="Button",
+                disabled=True
+                )
+            costs = MDTextField(
+                text=str(cost),
+                font_style="H6",
+                disabled=True,
+                icon_left='currency-php'
+                )
+            self.ids.img_container.add_widget(image_item)
+            self.ids.img_container.add_widget(panels)
+            self.ids.img_container.add_widget(costs)
+        # Display total cost
+        total_item = TwoLineListItem(
+            text="Total Cost",
+            font_style="Button",
+            secondary_text="₱ "+str(total_cost),
+            pos_hint={"center_y": .5},
+            _no_ripple_effect=True)
+
+        self.ids.img_container.add_widget(total_item)
+        
     def submit(self):
         try:
-            claim_data={
-                "Location": self.ids.location.text,
-                "Date": self.ids.date.text,
-                "Time": self.ids.time.text,
-                "Driver_Name": self.ids.name1.text,
-                "Driver_License": self.ids.license1.text,
-                "Driver_Address": self.ids.address1.text,
-                "Witness_Name": self.ids.witness_name.text,
-                "Witness_Address": self.ids.witness_address.text,
-                "Witness_Age": self.ids.witness_age.text,
-                "Witness_Gender": self.ids.witness_gender.text,
-                "Assured_Name":self.ids.name.text,
-                "Assured_License_No":self.ids.license.text,
-                "Assured_Address":self.ids.address.text
+            # Get the report data
+            report_data = {
+                'Location': self.ids.location.text,
+                'Date': self.ids.date.text,
+                'Time': self.ids.time.text,
+                'Driver_Name': self.ids.name1.text,
+                'Driver_License': self.ids.license1.text,
+                'Driver_Address': self.ids.address1.text,
+                'Witness_Name': self.ids.witness_name.text,
+                'Witness_Address': self.ids.witness_address.text,
+                'Witness_Age': self.ids.witness_age.text,
+                'Witness_Gender': self.ids.witness_gender.text,
             }
-            claim_ref = firestoredb.db.collection('claims').add(claim_data)
-        except:
-            print("error")
+
+            # Get Assured data
+            # user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
+            user_uid = firebaseauth.userID
+            user_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document(
+                'UserInfo').get().to_dict()
+            report_data['Assured_UID'] = user_uid
+            report_data['Assured_Name'] = user_data['name']
+            report_data['Assured_License_No'] = user_data['license_id']
+            report_data['Assured_Address'] = user_data['address']
+
+            # Get Insured Vehicle data
+            car_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document(
+                'CarInfo').get().to_dict()
+            insrnc_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document(
+                'InsuranceInfo').get().to_dict()
+
+            report_data['InsuredVeh_policy_no'] = insrnc_data['policy_no']
+            report_data['InsuredVeh_vehicle_type'] = car_data['vehicle_type']
+            report_data['InsuredVeh_file_no'] = car_data['file_no']
+            report_data['InsuredVeh_plate_no'] = car_data['plate_no']
+            report_data['InsuredVeh_engine_no'] = car_data['engine_no']
+            report_data['InsuredVeh_chassis_no'] = car_data['chassis_no']
+            report_data['InsuredVeh_model'] = car_data['model']
+            report_data['InsuredVeh_year'] = car_data['year']
+            report_data['InsuredVeh_body_type'] = car_data['body_type']
+            report_data['InsuredVeh_color'] = car_data['color']
+
+            # Get image URLs, panels, and costs
+            image_urls = []
+            panels = []
+            costs = []
+
+            for widget in self.ids.img_container.children:
+                if isinstance(widget, AsyncImage):
+                    image_urls.append(widget.source)
+                if isinstance(widget, MDLabel):
+                    panels.append(widget.text)
+                if isinstance(widget, MDTextField):
+                    costs.append(str(widget.text))
+
+            report_data['ImgRef'] = image_urls
+            report_data['PanelsPart'] = panels
+            report_data['Costs'] = costs
+
+            # Submit the claim data to Firestore
+            claim_ref = firestoredb.db.collection('claims').add(report_data)
+        except Exception as e:
+            print("Error:", str(e))
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "myReports"
