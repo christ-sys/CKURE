@@ -118,13 +118,7 @@ class Reports(Screen):
         app.root.get_screen('reportDetails').report_details(report_id)
 
 class InformationTab(MDBoxLayout, MDTabsBase):
-    report_id ="2"
-    details={}
-
-    def infoTab(self,report_id,tabnameobj):
-        report_data = firestoredb.get_report_details(report_id)
-        self.ids.name_label.secondary_text= report_data.get('Driver_Name','')
-
+    pass
 
 class ImageTab(MDBoxLayout, MDTabsBase):
     pass
@@ -157,15 +151,13 @@ class ReportDetails(Screen):
                 text=panel,
                 pos_hint= {"center_y": .5},
                 _no_ripple_effect = True,
-                text_color = '#ffffff',
-                # secondary_text_color = '#808080'
+                text_color = '#ffffff'
                 ))
             container.add_widget(mytile)
 
     def report_details(self, report_id):
         self.report_id = report_id
         self.report_data = firestoredb.get_report_details(report_id)
-        # InformationTab.ids.name_label.secondary_text="tryyyy"
         self.report_labels()
     def report_labels(self):
         ph_tz = pytz.timezone('Asia/Manila')
