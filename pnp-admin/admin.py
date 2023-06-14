@@ -30,6 +30,8 @@ from kivymd.uix.list import *
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.tab import MDTabsBase
+from kivymd.uix.imagelist import *
 
 sys.path.append('imports')
 from datetime import datetime
@@ -112,25 +114,74 @@ class Reports(Screen):
     def on_select(self, report_id):
         app = MDApp.get_running_app()
         app.root.current = 'reportDetails'
+        screen_manager.transition.direction='left'
         app.root.get_screen('reportDetails').report_details(report_id)
+
+class InformationTab(MDBoxLayout, MDTabsBase):
+    pass
+
+class ImageTab(MDBoxLayout, MDTabsBase):
+    pass
+
+
 class ReportDetails(Screen):
     def __init__(self, **kwargs):
         super(ReportDetails, self).__init__(**kwargs)
         self.report_data = {}
         self.report_id = None
+    
+    def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label, tab_text):
+        tab_name = tab_text.split(" ")[-1]
+
+        container = self.ids.ImgContainer
+        container.clear_widgets()
+
+        for img,panel in zip(self.report_data.get('ImgRef',''),self.report_data.get('PanelsPart','')):
+            mytile = MDSmartTile(
+                id="tile",
+                radius=24,
+                source=img,
+                box_radius = [0, 0, 24, 24],
+                box_color = [1, 1, 1, .2],
+                pos_hint = {"center_x": .5, "center_y": .5},
+                size_hint = (1,None),
+                size = ("150dp", "150dp"),
+            )
+            mytile.add_widget(OneLineListItem(
+                text=panel,
+                pos_hint= {"center_y": .5},
+                _no_ripple_effect = True,
+                text_color = '#ffffff'
+                ))
+            container.add_widget(mytile)
+
     def report_details(self, report_id):
         self.report_id = report_id
         self.report_data = firestoredb.get_report_details(report_id)
         self.report_labels()
     def report_labels(self):
         ph_tz = pytz.timezone('Asia/Manila')
-        name_label = self.ids.name_label
-        time_label = self.ids.time_label
-        title = self.ids.title
-        title.title = self.report_data.get('Driver_Name', '')
-        name_label.secondary_text = self.report_data.get('Driver_Name', '')
-        time_label.secondary_text = self.report_data.get('Time', '')
-    
+        self.ids.date_label.secondary_text=self.report_data.get('Date', '')
+        self.ids.time_label.secondary_text=self.report_data.get('Time', '')
+        self.ids.sender_label.secondary_text=self.report_data.get('report_sender', '')
+        self.ids.location_label.secondary_text=self.report_data.get('Location', '')
+        self.ids.status_label.secondary_text=self.report_data.get('status', '')
+        
+        #driver
+        self.ids.name_label.secondary_text=self.report_data.get('Driver_Name', '')
+        self.ids.daddress_label.secondary_text=self.report_data.get('Driver_Address', '')
+        self.ids.age_label.secondary_text=self.report_data.get('Driver_Age', '')
+        self.ids.gender_label.secondary_text=self.report_data.get('Driver_Gender', '')
+        self.ids.licence_label.secondary_text=self.report_data.get('Driver_License', '')
+        self.ids.vehicle_label.secondary_text=self.report_data.get('Vehicle', '')
+        self.ids.plate_label.secondary_text=self.report_data.get('Plate_number', '')
+
+        #witness
+        self.ids.wname_label.secondary_text=self.report_data.get('Witness_Name', '')
+        self.ids.waddress_label.secondary_text=self.report_data.get('Witness_Address', '')
+        self.ids.wage_label.secondary_text=self.report_data.get('Witness_Age', '')
+        self.ids.wgender_label.secondary_text=self.report_data.get('Witness_Gender', '')
+        
     def approve(self):
         # Retrieve the report by ID
         report_ref = firestoredb.db.collection('reports').document(self.report_id)
@@ -177,6 +228,7 @@ class PNP(MDApp):
         screen_manager.add_widget(Reports(name='reports'))
         screen_manager.add_widget(ReportDetails(name='reportDetails'))
         screen_manager.add_widget(Accounts(name='accounts'))
+        
         self.theme_cls.theme_style = "Light"
         return screen_manager
     def back(self, button):
