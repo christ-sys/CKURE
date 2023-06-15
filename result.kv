@@ -49,18 +49,21 @@
 
 <CustomCard>:
     orientation: 'vertical'
-    padding: dp(20)
+    padding: ("8dp")
     Image:
         source: root.image_source
         allow_stretch: True
         keep_ratio: True
         size_hint_y: 3
+        size_hint_x: 1
     MDTextField:
-        text: root.damage
+        text: "Prediction: "+root.damage
         icon_left:'car'
         multiline: True
         disabled: True
-       
+        hint_text: "Accuracy: "+root.confidence
+        theme_text_color:"Custom"
+        text_color: "#000000"
     MDRectangleFlatIconButton:
         icon: "trash-can"
         text: "Remove"
