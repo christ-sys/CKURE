@@ -4,32 +4,115 @@
         orientation: 'vertical'
         MDTopAppBar:
             id: title
+            font_style: 'Caption'
             elevation: 0
             pos_hint: {"top": 1}
             md_bg_color:"#323B4E"
-            use_overflow: True
-            left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
-            right_action_items:[["check-underline",lambda x : root.approve()]]
+            left_action_items: [["arrow-left", lambda x : root.back(self.icon)]]
+            right_action_items:[["check-underline", lambda x : root.approve()]]
         BoxLayout:
             orientation: 'vertical'
-            ScrollView:
-                size_hint: (1,1)
-                MDGridLayout:
-                    cols: 1
-                    spacing: "8dp"
-                    padding: "10dp", "10dp", "10dp", "50dp"
-                    size_hint_y: None
-                    height: self.minimum_height + dp(10)
-
-                    TwoLineIconListItem:
-                        id: claimant_label
-                        text:"Name"
-                        secondary_text: ""
-                        IconLeftWidget:
-                            icon: "account"
-                    TwoLineIconListItem:
-                        id: date_label
-                        text:"Date"
-                        secondary_text: ""
-                        IconLeftWidget:
-                            icon: "calendar"
+            padding: "10dp", "10dp", "10dp", "10dp"
+            MDRelativeLayout:
+                ScrollView:
+                    size_hint: (1,1)
+                    MDGridLayout:
+                        cols: 1
+                        padding: "10dp", "10dp", "10dp", "0dp"
+                        size_hint_y: None
+                        height: self.minimum_height + dp(10)
+                        spacing: '25dp'
+                        MDLabel:
+                            text: 'The Claim'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            id: img_container
+                            orientation: 'vertical'
+                            md_bg_color:"white"
+                            size_hint_y: None
+                            height: self.minimum_height
+                            size_hint: .9,None
+                            padding: ('10dp', '30dp', '10dp', '30dp')
+                            spacing: '8dp'
+                        MDLabel:
+                            text: 'The Assured'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: claimant_label
+                                hint_text: 'Name'
+                                disabled: True
+                            MDTextField:
+                                id: license_no
+                                hint_text: 'Drivers License No.'
+                                disabled: True
+                            MDTextField:
+                                id: address
+                                hint_text: 'Address'
+                                disabled: True
+                        MDLabel:
+                            text: 'The Insured Vehicle'
+                            font_style: 'H6'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            md_bg_color:"#cfe2f3"
+                            size_hint_y: None
+                            padding: "10dp", "0dp", "10dp", "10dp"
+                            height: self.minimum_height + dp(20)
+                            radius: 10
+                            MDTextField:
+                                id: policy_no
+                                hint_text: "POLICY NO.:"
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id: vehicle_type
+                                hint_text: "TYPE OF USE:"
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id:file_no
+                                hint_text: "MV FILE NO."
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id:plate_no
+                                hint_text: "PLATE NO."
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id:engine_no
+                                hint_text: "ENGINE/MOTOR NO."
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id:chassis_no
+                                hint_text: "SERIAL/CHASSIS NO."
+                                icon_left: "file-outline"
+                                disabled: True
+                            MDTextField:
+                                id:model
+                                hint_text: "MODEL/SERIES"
+                                icon_left: "car-info"
+                                disabled: True
+                            MDTextField:
+                                id:year
+                                hint_text: "YEAR MODEL"
+                                icon_left: "car-info"
+                                disabled: True
+                            MDTextField:
+                                id:body_type
+                                hint_text: "BODY TYPE"
+                                icon_left: "car-info"
+                                disabled: True
+                            MDTextField:
+                                id:color
+                                hint_text: "COLOR"
+                                icon_left: "car-info"
+                                disabled: True

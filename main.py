@@ -1,20 +1,23 @@
 # LIBRARY AND MODULE IMPORTS
 import hashlib
+import os
 import random
 import string
 import time
 from datetime import datetime
 
 import numpy as np
+import pytz
 from keras.models import load_model
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ColorProperty
+from kivy.properties import (ColorProperty, NumericProperty, ObjectProperty,
+                             StringProperty)
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.image import Image as rawImage
 from kivy.uix.image import AsyncImage
+from kivy.uix.image import Image as rawImage
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.app import MDApp
 from kivymd.icon_definitions import md_icons
@@ -23,6 +26,8 @@ from kivymd.uix.button import (MDFlatButton, MDRectangleFlatButton,
                                MDRectangleFlatIconButton)
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.fitimage import FitImage
+from kivymd.uix.imagelist import MDSmartTile
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list.list import *
 from kivymd.uix.menu import MDDropdownMenu
@@ -30,19 +35,16 @@ from kivymd.uix.pickers import MDDatePicker
 from kivymd.uix.recycleview import RecycleView
 from kivymd.uix.sliverappbar import *
 from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.swiper import *
+from kivymd.uix.textfield import MDTextField
 from PIL import Image
 from PIL import Image as pilImage
 from PIL import ImageOps
 from pytz import timezone
 from roboflow import Roboflow
-import pytz
-import os
+
 import firebaseauth
 import firestoredb
-from kivymd.uix.swiper import *
-from kivymd.uix.imagelist import MDSmartTile
-from kivymd.uix.fitimage import FitImage
-from kivymd.uix.textfield import MDTextField
 
 Window.size = (350, 630)
 Builder.load_file("login.kv")
@@ -717,9 +719,7 @@ class MyReports(Screen):
     approved_count = NumericProperty(0)
     pending_count = NumericProperty(0)
     def on_pre_enter(self):
-        # user_uid = firebaseauth.userID
-        
-        user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
+        user_uid = firebaseauth.userID
         reports = firestoredb.db.collection('reports')
         reports_query = reports.where('report_sender', '==', user_uid).get()
         reports_list = self.ids.validated
@@ -826,7 +826,6 @@ class GenerateClaim(Screen):
         self.ids.time.text = report_data['Time']
         # The Assured
         user_uid = firebaseauth.userID
-        # user_uid = "Pu8O4I57snXfJRk933Ahighn1no2"
         user_data = firestoredb.db.collection('users').document(user_uid).collection('Account').document('UserInfo').get().to_dict()
         self.ids.name.text = user_data['name']
         self.ids.license.text = user_data['license_id']
@@ -899,6 +898,7 @@ class GenerateClaim(Screen):
                 'Witness_Address': self.ids.witness_address.text,
                 'Witness_Age': self.ids.witness_age.text,
                 'Witness_Gender': self.ids.witness_gender.text,
+                'Status': "Pending"
             }
 
             # Get Assured data
@@ -1038,9 +1038,8 @@ class Ckure(MDApp):
             predictions.sort(reverse=True)  # Sort predictions by confidence in descending order
             max_confidence = predictions[0][0]
             max_damage = predictions[0][1]
-            data_list['damage'] = max_damage
-            data_list['confidence'] = f"{max_confidence}%"
-            model.predict(data_list['image_source'], confidence=40, overlap=30).save("prediction2.jpg")
+            data_list['damage'] = max_damage.upper()
+            data_list['confidence'] = f"{max_confidence}%".upper()
                 
         return data_list
 
