@@ -5,7 +5,7 @@
         padding: "10dp", "10dp", "10dp", "10dp"
         MDRelativeLayout:
             FitImage:
-                source: "assets/sample.png"
+                source: "assets/sterling.png"
             MDCard:
                 md_bg_color:"white"
                 opacity:.9
@@ -37,23 +37,7 @@
                                 theme_text_color:"Custom"
                                 text_color:"white"
                                 halign: 'center'
-                    # CustomCard:
-                    #     MDIcon:
-                    #         font_size: '80dp'
-                    #         icon: "account"
-                    #         icon_color:"white"
-                    #         pos_hint: {"center_x": .47, "center_y": .5}
-                    #         badge_icon: "numeric-"+root.count_users()
-                    #         badge_bg_color: "#323B4E"
-                    #     MDLabel:
-                    #         font_size:'18dp'
-                    #         bold: True
-                    #         text: "Total Accounts" 
-                    #         theme_text_color:"Custom"
-                    #         text_color:"white"
-                    #         halign: 'center'
     MDNavigationLayout:
-
         ScreenManager:
             id: screen_manager
             MDScreen:
@@ -65,8 +49,6 @@
                     left_action_items:
                         [['menu', lambda x: nav_drawer.set_state("open")]]
                     right_action_items: [["account", lambda x: x]]
-
-
         MDNavigationDrawer:
             id: nav_drawer
             radius: (0, 16, 16, 0)
@@ -80,7 +62,7 @@
             AnchorLayout:
                 anchor_x: 'center'
                 FitImage:
-                    source: "assets/sample.png"
+                    source: "assets/sterling.png"
                     size_hint: None, None
                     width:"150dp"
                     height: "150dp"
@@ -103,27 +85,6 @@
                         app.root.current="claims"
                     IconLeftWidget:
                         icon:"file"
-                # OneLineIconListItem:
-                #     text: "Accounts"
-                #     on_press:
-                #         root.nav_drawer.set_state("close")
-                #         app.root.current="accounts"
-                #     IconLeftWidget:
-                #         icon:"account"
-                # OneLineIconListItem:
-                #     text: 'CARS'
-                #     on_press:
-                #         root.nav_drawer.set_state("close")
-                #         app.root.current="car_brand"
-                #     IconLeftWidget:
-                #         icon:"car"
-                # GridLayout:
-                #     id: box
-                #     cols: 1
-                #     height: self.minimum_height
-                #     MDLabel:
-                #         id: label
-                #         text:""
         MDFloatingActionButton:
             text:"logout"
             icon: "power-standby"
