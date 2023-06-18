@@ -57,6 +57,7 @@ Builder.load_file("myInsurance.kv")
 Builder.load_file("blotter.kv")
 Builder.load_file("result.kv")
 Builder.load_file("myReports.kv")
+Builder.load_file("myClaims.kv")
 Builder.load_file("generateClaim.kv")
 Builder.load_file("submitted.kv")
 
@@ -952,27 +953,62 @@ class GenerateClaim(Screen):
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "myReports"
-class MyCLaims(Screen):
+class MyClaims(Screen):
     def on_pre_enter(self):
         user_uid = firebaseauth.userID
+        # user_uid = 'Pu8O4I57snXfJRk933Ahighn1no2'
         claims = firestoredb.db.collection('claims')
-        claims_query = claims.where('claimant_id', '==', user_uid).get()
-        claims_list = self.ids.validated
+        claims_query = claims.where('Assured_UID', '==', user_uid).get()
+        claims_list = self.ids.claims
         claims_list.clear_widgets()
-        pending_list = self.ids.pending
-        pending_list.clear_widgets()
         for claim in claims_query:
             claim_data = claim.to_dict()
             print(claim_data)
+            doc_id = claim.id
+            print(doc_id)
             date = "Date: " + claim_data['Date']
             time = "Time: " + claim_data['Time']
-            location = "Location: " + claim_data['Location']
-            if claim_data['status']=="Approved":
-                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
-                claims_list.add_widget(item)
-            elif claim_data['status']=="Pending":
-                item = ThreeLineListItem(text=date , secondary_text=time, tertiary_text=location)
-                pending_list.add_widget(item)
+            claimant = "Claimant: " + claim_data['Assured_Name']
+            item = ThreeLineRightIconListItem(
+                text=date,
+                secondary_text = claimant,
+                tertiary_text="Claim ID: " + doc_id,
+            )
+            item.add_widget(IconRightWidget(icon='chevron-right'))
+            item.bind(on_release=lambda instance, data=claim_data: self.show_claim_details(data))
+            claims_list.add_widget(item)
+    def show_claim_details(self, claim_data):
+        costs = claim_data['Costs']
+        # total_cost = sum(costs)
+        dialog_text = "Date: {}\n"\
+                    "Time: {}\n" \
+                    "Claimant: {}\n"\
+                    "Panels: {}\n"\
+                    "Costs: {}\n"\
+                    "Status: {}\n".format(
+            claim_data['Date'],
+            claim_data['Time'],
+            claim_data['Assured_Name'],
+            claim_data['PanelsPart'],
+            ', '.join(str(cost) for cost in costs),
+            claim_data['Status']
+        )
+
+        dialog_buttons = [
+            MDFlatButton(
+                text="Close",
+                theme_text_color="Custom",
+                text_color="red",
+                on_release=lambda x: self.dialog.dismiss(),
+            )
+        ]
+        self.dialog = MDDialog(
+            title="My Claim Details",
+            text=dialog_text,
+            buttons=dialog_buttons,
+        )
+        self.dialog.open()
+        
     def back(self, button):
         screen_manager.transition.direction='right'
         screen_manager.current = "home"
@@ -994,6 +1030,7 @@ class Ckure(MDApp):
         screen_manager.add_widget(MyReports(name='myReports'))
         screen_manager.add_widget(GenerateClaim(name='generateClaim'))
         screen_manager.add_widget(MyInsurance(name='myInsurance'))
+        screen_manager.add_widget(MyClaims(name='myClaims'))
         screen_manager.add_widget(Result(name='result'))
         screen_manager.add_widget(Report(name='createReport'))
         screen_manager.add_widget(Submitted(name='submitted'))
