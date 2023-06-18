@@ -249,8 +249,8 @@ class CasaReports(Screen):
         approved_list.clear_widgets()
         ph_tz = pytz.timezone('Asia/Manila')
         for report in reports:
-            name_text = "Name: " + str(report['Driver_Name'])
-            report_id_text = "Report ID: " + str(report['report_sender'])
+            name_text = "Name: " + str(report['sender_name'])
+            report_id_text = "Date: " + str(report['Date'])
             date_text = "Time: " + str(report['Time'])
             if report['status'] == "PNP_Approved":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
@@ -267,38 +267,33 @@ class CasaReports(Screen):
         app.root.get_screen('reportDetails').report_details(report_id)
         self.manager.transition.direction='left'
 
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "dashboard"
 
 # ============================================
 # =================LOGIN PAGE=================
 class CasaLogin(Screen):
-    email = 'ckure.org@mail.com'
-    password='password123'
-    
-    def show_password(self,checkbox,value):
-        if value:
-            self.ids.password.password=False
-            self.ids.show_password.text="Hide Password"
-        else:
-            self.ids.password.password=True
-            self.ids.show_password.text="Show Password"
     def verify_admin(self):
         email = self.ids.email.text
         password = self.ids.password.text
         try:
-            # user = firebaseauth.auth.create_user_with_email_and_password(email, password)
             user = firebaseauth.auth.sign_in_with_email_and_password(email, password)
-            # custom_token = firebaseauth.auth.create_custom_token(uid)
-            # user = firebaseauth.auth.sign_in_with_custom_token(custom_token)
-            CasaLogin.email = email
-            self.manager.current='dashboard'
-        except Exception as e: 
-            Snackbar(
-                text="Invalid Credentials",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-                size_hint_x=(Window.width - (10 * 2)) / Window.width
-            ).open()
+            self.manager.current='casa_reports'
+        except:
+            self.show_error_dialog()
+            self.manager.current='casa_reports'
 
+    def show_error_dialog(self):
+        ok_button = MDFlatButton(text="OK", on_release=self.dismiss_dialog)
+        self.dialog = MDDialog(
+            title="Error",
+            text="INVALID ACCOUNT",
+            buttons=[ok_button]
+        )
+        self.dialog.open()
+    def dismiss_dialog(self, *args):
+        self.dialog.dismiss()
 # ============================================
 # =================MENU DRAWER PAGE=================
 class ContentNavigationDrawer(MDBoxLayout):
@@ -324,11 +319,9 @@ class AdminApp(MDApp):
     def on_start(self):
         Clock.schedule_once(self.login, 5)
     def login(self, *args):
-        screen_manager.current = "casa_reports"
-    
-
-    # AUTO RELOAD
-    AUTORELOADER_PATHS = [
-        (".",{"recursive": True})
-    ]
+        screen_manager.current = "casaLogin"
+    def logout(self, button):
+        screen_manager.get_screen('casaLogin').ids.email.text = ''
+        screen_manager.get_screen('casaLogin').ids.password.text = ''
+        screen_manager.current='casaLogin'
 AdminApp().run()

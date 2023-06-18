@@ -84,14 +84,6 @@ class Dashboard(Screen):
         today = datetime.now().date()
         return str(today)
 class Reports(Screen):
-    def count_reports(self):
-        reports_col = firestoredb.get_reports()
-        total = len(reports_col)
-        return str(total)
-    def approved_reports(self):
-        reports_col = firestoredb.get_approved_reports_pnp()
-        total = len(reports_col)
-        return str(total)
     def on_pre_enter(self):
         reports = firestoredb.get_all_reports()
         reports_list = self.ids.pending
@@ -100,15 +92,15 @@ class Reports(Screen):
         approved_list.clear_widgets()
         ph_tz = pytz.timezone('Asia/Manila')
         for report in reports:
-            name_text = "Name: " + str(report['Driver_Name'])
-            report_id_text = "Report ID: " + str(report['report_sender'])
+            name_text = "Report Sender: " + str(report['sender_name'])
+            report_id_text = "Date: " + str(report['Date'])
             date_text = "Time: " + str(report['Time'])
             if report['status'] == "Pending":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 item.add_widget(IconRightWidget(icon="chevron-right"))
                 item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
                 reports_list.add_widget(item)
-            elif report['status'] == "PNP_Approved":
+            elif report['status'] == "PNP_Approved" or report['status'] == "CASA_Approved":
                 item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
                 approved_list.add_widget(item)
     def on_select(self, report_id):
@@ -119,11 +111,8 @@ class Reports(Screen):
 
 class InformationTab(MDBoxLayout, MDTabsBase):
     pass
-
 class ImageTab(MDBoxLayout, MDTabsBase):
     pass
-
-
 class ReportDetails(Screen):
     def __init__(self, **kwargs):
         super(ReportDetails, self).__init__(**kwargs)
@@ -163,11 +152,11 @@ class ReportDetails(Screen):
         ph_tz = pytz.timezone('Asia/Manila')
         self.ids.date_label.secondary_text=self.report_data.get('Date', '')
         self.ids.time_label.secondary_text=self.report_data.get('Time', '')
-        self.ids.sender_label.secondary_text=self.report_data.get('report_sender', '')
+        self.ids.sender_label.secondary_text=self.report_data.get('sender_name', '')
         self.ids.location_label.secondary_text=self.report_data.get('Location', '')
         self.ids.status_label.secondary_text=self.report_data.get('status', '')
         
-        #driver
+        # other driver
         self.ids.name_label.secondary_text=self.report_data.get('Driver_Name', '')
         self.ids.daddress_label.secondary_text=self.report_data.get('Driver_Address', '')
         self.ids.age_label.secondary_text=self.report_data.get('Driver_Age', '')
@@ -176,7 +165,7 @@ class ReportDetails(Screen):
         self.ids.vehicle_label.secondary_text=self.report_data.get('Vehicle', '')
         self.ids.plate_label.secondary_text=self.report_data.get('Plate_number', '')
 
-        #witness
+        # the witness
         self.ids.wname_label.secondary_text=self.report_data.get('Witness_Name', '')
         self.ids.waddress_label.secondary_text=self.report_data.get('Witness_Address', '')
         self.ids.wage_label.secondary_text=self.report_data.get('Witness_Age', '')
@@ -238,8 +227,4 @@ class PNP(MDApp):
         screen_manager.get_screen('adminLogin').ids.email.text = ''
         screen_manager.get_screen('adminLogin').ids.password.text = ''
         screen_manager.current='adminLogin'
-    # AUTO RELOAD
-    AUTORELOADER_PATHS = [
-        (".",{"recursive": True})
-    ]
 PNP().run()
