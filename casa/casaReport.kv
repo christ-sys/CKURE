@@ -3,19 +3,18 @@
     BoxLayout:
         orientation: 'vertical'
         MDTopAppBar:
-            title:"Reports"
+            title:"For Estimation"
             elevation: 0
             pos_hint: {"top": 1}
             md_bg_color:"#323B4E"
-            # left_action_items:
-            #     [['menu', lambda x: nav_drawer.set_state("open")]]
+            right_action_items:[['power-standby', lambda x: app.logout(self.icon)]]
         MDBottomNavigation:
             panel_color: "#323B4E"
             text_color_active: "lightgrey"
 
             MDBottomNavigationItem:
                 name: 'pending'
-                text: 'New Reports'
+                text: 'New'
                 id: pending_count
                 icon: 'account'
                 badge_icon:"numeric-"+root.count_reports()
@@ -41,7 +40,7 @@
             MDBottomNavigationItem:
                 name: 'approved'
                 id: approved_count
-                text: 'APPROVED REPORTS'
+                text: 'Estimated'
                 icon: 'file-document'
                 badge_icon:"numeric-"+root.approved_reports()
 
