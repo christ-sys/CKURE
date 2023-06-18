@@ -956,8 +956,7 @@ class GenerateClaim(Screen):
 class MyClaims(Screen):
     claim_count = NumericProperty()
     def on_pre_enter(self):
-        # user_uid = firebaseauth.userID
-        user_uid = 'Pu8O4I57snXfJRk933Ahighn1no2'
+        user_uid = firebaseauth.userID
         claims = firestoredb.db.collection('claims')
         claims_query = claims.where('Assured_UID', '==', user_uid).get()
         claim_count = len(claims_query)
@@ -1026,27 +1025,27 @@ class Ckure(MDApp):
     def build(self):
         global screen_manager
         screen_manager = ScreenManager()
-        # screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
-        # screen_manager.add_widget(Login(name='login'))
-        # screen_manager.add_widget(SignUp(name='signup'))
-        # screen_manager.add_widget(CarDetails(name='car_details'))
-        # screen_manager.add_widget(InsuranceDetails(name='insurance_details'))
-        # screen_manager.add_widget(Home(name='home'))
-        # screen_manager.add_widget(MyCar(name='myCar'))
-        # screen_manager.add_widget(MyReports(name='myReports'))
-        # screen_manager.add_widget(GenerateClaim(name='generateClaim'))
-        # screen_manager.add_widget(MyInsurance(name='myInsurance'))
+        screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
+        screen_manager.add_widget(Login(name='login'))
+        screen_manager.add_widget(SignUp(name='signup'))
+        screen_manager.add_widget(CarDetails(name='car_details'))
+        screen_manager.add_widget(InsuranceDetails(name='insurance_details'))
+        screen_manager.add_widget(Home(name='home'))
+        screen_manager.add_widget(MyCar(name='myCar'))
+        screen_manager.add_widget(MyReports(name='myReports'))
+        screen_manager.add_widget(GenerateClaim(name='generateClaim'))
+        screen_manager.add_widget(MyInsurance(name='myInsurance'))
         screen_manager.add_widget(MyClaims(name='myClaims'))
         screen_manager.add_widget(Result(name='result'))
         screen_manager.add_widget(Report(name='createReport'))
         screen_manager.add_widget(Submitted(name='submitted'))
 
         return screen_manager
-    # def on_start(self):
-    #     Clock.schedule_once(self.login, 12)
+    def on_start(self):
+        Clock.schedule_once(self.login, 12)
 
-    # def login(self, *args):
-    #     screen_manager.current = "login"
+    def login(self, *args):
+        screen_manager.current = "login"
     #DELETING IMAGE DATASET
     
     #CALCULATE TOTAL AMOUNT TO BE PAID
