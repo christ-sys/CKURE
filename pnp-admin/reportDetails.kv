@@ -4,21 +4,19 @@
         orientation: 'vertical'
         MDTopAppBar:
             id: title
+            title: 'Report Details'
             elevation: 0
             pos_hint: {"top": 1}
-            md_bg_color:"#323B4E"
             use_overflow: True
             left_action_items:[["arrow-left", lambda x : root.back(self.icon)]]
             right_action_items:[["check-underline",lambda x : root.approve()]]
-
+            md_bg_color: "#323B4E"
         MDTabs:
             id:tabs
             on_tab_switch:root.on_tab_switch(*args)
-        
             InformationTab:
                 title: "Information"
                 icon: "information"
-
                 name: "information"
                 BoxLayout:
                     orientation: 'vertical'
@@ -27,9 +25,9 @@
                         MDGridLayout:
                             cols: 1
                             spacing: "8dp"
-                            padding: "10dp", "10dp", "10dp", "50dp"
+                            padding: "10dp", "10dp", "10dp", "10dp"
                             size_hint_y: None
-                            height: self.minimum_height + dp(10)
+                            height: self.minimum_height + dp(30)
 
                             
                             TwoLineIconListItem:
@@ -45,7 +43,6 @@
                                 secondary_text: ""
                                 IconLeftWidget:
                                     icon: "clock"
-                            
                             TwoLineIconListItem:
                                 id: sender_label
                                 text:"Report Sender"
@@ -59,15 +56,9 @@
                                 secondary_text: ""
                                 IconLeftWidget:
                                     icon: "sign-direction"
-                            
-                            TwoLineIconListItem:
-                                id: status_label
-                                text:"Report Status"
-                                secondary_text: ""
-                                IconLeftWidget:
-                                    icon: "alert-circle-outline"
-                            
-                            
+                            MDLabel:
+                                text: 'The Other Vehicle'
+                                font_style:"H6"
                             TwoLineIconListItem:
                                 id: name_label
                                 text:"Driver Name"
@@ -100,7 +91,6 @@
                                 secondary_text: ""
                                 IconLeftWidget:
                                     icon: "license"
-
                             TwoLineIconListItem:
                                 id: vehicle_label
                                 text:"Vehicle"
@@ -113,9 +103,10 @@
                                 secondary_text: ""
                                 IconLeftWidget:
                                     icon: "pound-box-outline"
-                            
-
                             #WITNESS
+                            MDLabel:
+                                text: 'The Witness'
+                                font_style:"H6"
                             TwoLineIconListItem:
                                 id: wname_label
                                 text:"Witness Name"
@@ -142,6 +133,12 @@
                                 secondary_text: ""
                                 IconLeftWidget:
                                     icon: "gender-male-female"
+                            TwoLineIconListItem:
+                                id: status_label
+                                text:"Report Status"
+                                secondary_text: ""
+                                IconLeftWidget:
+                                    icon: "alert-circle-outline"
                             
 
             
@@ -170,11 +167,3 @@
     
 
 <ImageTab>:
-    
-
-                # TwoLineIconListItem:
-                #     id: name_label
-                #     text:"Name"
-                #     secondary_text: ""
-                #     IconLeftWidget:
-                #         icon: "account"
