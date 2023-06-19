@@ -305,6 +305,7 @@ class ContentNavigationDrawer(MDBoxLayout):
 class AdminApp(MDApp):
     def build(self):
         self.title = "NISSAN"
+        self.icon = "../assets/CasaLogo.png"
         global screen_manager
         screen_manager = ScreenManager()
         screen_manager.add_widget(Builder.load_file("splashscreen.kv"))
