@@ -1,35 +1,33 @@
-from sqlite3 import dbapi2
-import sys
 import os
+import sys
+import time
+from datetime import datetime
+from sqlite3 import dbapi2
+
 import pytz
-
-from kivy.properties import *
-
-from kivymd.app import MDApp
-from kivymd.uix.snackbar import Snackbar
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.list import *
-from kivymd.uix.button import *
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.imagelist import *
-from kivymd.uix.label import MDLabel
-from kivymd.uix.card import MDCard
-from kivymd.uix.tab import MDTabsBase
-
-
-from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.properties import *
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import *
+from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.imagelist import *
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list import *
+from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.tab import MDTabsBase
 
 # from main import CustomCard
 
 sys.path.append('./imports')
 import firebaseauth
 import firestoredb
-
 
 Window.size = (350, 630)
 Builder.load_file("casalogin.kv")
@@ -47,6 +45,7 @@ class Content(BoxLayout):
     index = 0
     amount = 0
     costs = []
+    estimator = ''
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         repairlst=['Repair', 'Replacement']
@@ -77,7 +76,46 @@ class Content(BoxLayout):
 
 class CustomCard(MDCard):
     pass
+class CasaReports(Screen):
+    def count_reports(self):
+        reports_col = firestoredb.getReport_CASA()
+        total = len(reports_col)
+        return str(total)
+    def approved_reports(self):
+        reports_col = firestoredb.get_approved_reports_casa()
+        total = len(reports_col)
+        return str(total)
+    
+    def on_pre_enter(self):
+        reports = firestoredb.get_all_reports()
+        reports_list = self.ids.pending
+        reports_list.clear_widgets()
+        approved_list = self.ids.approved_report
+        approved_list.clear_widgets()
+        ph_tz = pytz.timezone('Asia/Manila')
+        for report in reports:
+            name_text = "Report Sender: " + str(report['sender_name'])
+            date_text = "Date: " + str(report['Date'])
+            time_text = "Time: " + str(report['Time'])
+            if report['status'] == "PNP_Approved":
+                item = ThreeLineRightIconListItem(text=name_text, secondary_text=date_text, tertiary_text=time_text)
+                item.add_widget(IconRightWidget(icon="chevron-right"))
+                item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
+                reports_list.add_widget(item)
+            elif report['status'] == "CASA_Approved":
+                item = ThreeLineRightIconListItem(text=name_text, secondary_text=date_text, tertiary_text=time_text)
+                approved_list.add_widget(item)
 
+    def on_select(self, report_id):
+        app = MDApp.get_running_app()
+        app.root.current = 'reportDetails'
+        app.root.get_screen('reportDetails').report_details(report_id)
+        self.manager.transition.direction='left'
+
+    def back(self, button):
+        screen_manager.transition.direction='right'
+        screen_manager.current = "dashboard"
+        
 class ReportDetails(Screen):
     dialog = None
     def __init__(self, **kwargs):
@@ -91,7 +129,7 @@ class ReportDetails(Screen):
         costs = self.report_data.get('Costs',0)
         amount=0
         for item in costs:
-            amount+=int(item)
+            amount+=float(item)
 
         priceCard = CustomCard()
         box=MDBoxLayout(orientation='vertical')
@@ -149,11 +187,6 @@ class ReportDetails(Screen):
         self.ids.waddress_label.secondary_text=self.report_data.get('Witness_Address', '')
         self.ids.wage_label.secondary_text=self.report_data.get('Witness_Age', '')
         self.ids.wgender_label.secondary_text=self.report_data.get('Witness_Gender', '')
-        
-
-        
-
-            
     def show_confirmation_dialog(self, index, *args):
         myidx=index
         Content.index = index
@@ -182,6 +215,7 @@ class ReportDetails(Screen):
         hours = self.dialog.content_cls.ids.lcost.text
         rcost = self.dialog.content_cls.ids.rcost.text
         type = self.dialog.content_cls.ids.rtype.text
+        estimator = self.ids.estimator.text
 
         amount = self.estimated_cost(type,hours,rcost)
         Content.amount+=amount
@@ -199,20 +233,26 @@ class ReportDetails(Screen):
     def estimated_cost(self,type,hours,replace):
         x = 4500
         y = 5500
-        labor = 560 * int(hours)
+        labor = 560 * float(hours)
         sum = x + y + labor
         if type=="Replacement":
-            sum+=int(replace)
+            sum+=float(replace)
         return sum
         
     def submit_Estimation(self):
         # Retrieve the report by ID
         report_ref = firestoredb.db.collection('reports').document(self.report_id)
         report = report_ref.get().to_dict()
-
+        reportDate = time.strftime("%d-%m-%Y")
+        ph_tz = pytz.timezone('Asia/Manila')
+        current_date= time.strftime("%B %d, %Y")
+        current_time = time.strftime("%I:%M:%S %p")
+        estimator = self.ids.estimator.text
         # Update the approved value for the report
         report['status'] = "CASA_Approved"
-
+        report['Date_Estimated'] = current_date
+        report['Time_Estimated'] = current_time
+        report['estimator']=estimator
         # Save the updated report to the database
         report_ref.set(report)
 
@@ -231,45 +271,7 @@ class ReportDetails(Screen):
 
 # ============================================
 # =================HOME PAGE=================
-class CasaReports(Screen):
-    def count_reports(self):
-        reports_col = firestoredb.getReport_CASA()
-        total = len(reports_col)
-        return str(total)
-    def approved_reports(self):
-        reports_col = firestoredb.get_approved_reports_casa()
-        total = len(reports_col)
-        return str(total)
-    
-    def on_pre_enter(self):
-        reports = firestoredb.get_all_reports()
-        reports_list = self.ids.pending
-        reports_list.clear_widgets()
-        approved_list = self.ids.approved_report
-        approved_list.clear_widgets()
-        ph_tz = pytz.timezone('Asia/Manila')
-        for report in reports:
-            name_text = "Name: " + str(report['sender_name'])
-            report_id_text = "Date: " + str(report['Date'])
-            date_text = "Time: " + str(report['Time'])
-            if report['status'] == "PNP_Approved":
-                item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
-                item.add_widget(IconRightWidget(icon="chevron-right"))
-                item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
-                reports_list.add_widget(item)
-            elif report['status'] == "CASA_Approved":
-                item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
-                approved_list.add_widget(item)
 
-    def on_select(self, report_id):
-        app = MDApp.get_running_app()
-        app.root.current = 'reportDetails'
-        app.root.get_screen('reportDetails').report_details(report_id)
-        self.manager.transition.direction='left'
-
-    def back(self, button):
-        screen_manager.transition.direction='right'
-        screen_manager.current = "dashboard"
 
 # ============================================
 # =================LOGIN PAGE=================
@@ -282,7 +284,6 @@ class CasaLogin(Screen):
             self.manager.current='casa_reports'
         except:
             self.show_error_dialog()
-            self.manager.current='casa_reports'
 
     def show_error_dialog(self):
         ok_button = MDFlatButton(text="OK", on_release=self.dismiss_dialog)
