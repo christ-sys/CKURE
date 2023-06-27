@@ -139,6 +139,7 @@ class ClaimDetails(Screen):
         claimant_label = self.ids.claimant_label
         license_no = self.ids.license_no
         address = self.ids.address
+        # contact = self.ids.contact
         policy_no = self.ids.policy_no
         vehicle_type = self.ids.vehicle_type
         file_no = self.ids.file_no
@@ -150,11 +151,17 @@ class ClaimDetails(Screen):
         body_type = self.ids.body_type
         color = self.ids.color
         title = self.ids.title
+        estimator = self.ids.estimator
+        date_est = self.ids.date_est
+        time_est = self.ids.time_est
+        submitted_at = self.ids.submitted_at
+        submitted_on = self.ids.submitted_on
         
         title.title = self.claim_data.get('Assured_Name', '')
         claimant_label.text = self.claim_data.get('Assured_Name', '')
         license_no.text = self.claim_data.get('Assured_License_No','')
         address.text = self.claim_data.get('Assured_Address','')
+        # contact.text = self.claim_data.get('Assured_Contact')
         policy_no.text = self.claim_data.get('InsuredVeh_policy_no','')
         vehicle_type.text = self.claim_data.get('InsuredVeh_vehicle_type','')
         file_no.text = self.claim_data.get('InsuredVeh_file_no','')
@@ -165,12 +172,17 @@ class ClaimDetails(Screen):
         year.text = self.claim_data.get('InsuredVeh_year','')
         body_type.text = self.claim_data.get('InsuredVeh_body_type','')
         color.text = self.claim_data.get('InsuredVeh_color','')
+        estimator.text = self.claim_data.get('estimator')
+        date_est.text = self.claim_data.get('Date_Estimated')
+        time_est.text = self.claim_data.get('Time_Estimated')
+        submitted_at.text = self.claim_data.get('Submitted_at')
+        submitted_on.text = self.claim_data.get('Submitted_on')
         image_urls = self.claim_data.get('ImgRef')
         panels = self.claim_data.get('PanelsPart')
         costs = self.claim_data.get('Costs')
         total_cost = 0
         for cost in costs:
-            total_cost += int(cost)
+            total_cost += float(cost)
         self.ids.img_container.clear_widgets()
         for index,(url, panel, cost) in enumerate (zip(image_urls, panels, costs)):
             image_item = AsyncImage(source=url, size_hint=(1, None), size=("200dp", "200dp"))
@@ -200,10 +212,10 @@ class ClaimDetails(Screen):
         # Retrieve the claim by ID
         claim_ref = firestoredb.db.collection('claims').document(self.claim_id)
         claim = claim_ref.get().to_dict()
-
+        insurance_estimator = self.ids.insurance_estimator.text
         # Update the approved value for the claim
         claim['Status'] = "Approved"
-
+        claim['validated'] = insurance_estimator
         # Save the updated claim to the database
         claim_ref.set(claim)
         self.show_snackbar("Claim Approved")

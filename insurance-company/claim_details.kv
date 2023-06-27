@@ -34,6 +34,26 @@
                             size_hint: .9,None
                             padding: ('10dp', '30dp', '10dp', '30dp')
                             spacing: '8dp'
+                        MDTextField:
+                            id: estimator
+                            hint_text: 'Estimated By:'
+                            disabled: True
+                        MDTextField:
+                            id: date_est
+                            hint_text: 'Date of Estimation:'
+                            disabled: True
+                        MDTextField:
+                            id: time_est
+                            hint_text: 'Time of Estimation:'
+                            disabled: True
+                        MDTextField:
+                            id: submitted_on
+                            hint_text: 'Date of Claim:'
+                            disabled: True
+                        MDTextField:
+                            id: submitted_at
+                            hint_text: 'Time of Claim:'
+                            disabled: True
                         MDLabel:
                             text: 'The Assured'
                             font_style: 'H6'
@@ -55,6 +75,10 @@
                             MDTextField:
                                 id: address
                                 hint_text: 'Address'
+                                disabled: True
+                            MDTextField:
+                                id: contact
+                                hint_text: 'Contact'
                                 disabled: True
                         MDLabel:
                             text: 'The Insured Vehicle'
@@ -116,3 +140,7 @@
                                 hint_text: "COLOR"
                                 icon_left: "car-info"
                                 disabled: True
+                        MDTextField:
+                            id:insurance_estimator
+                            hint_text: "Approved by:"
+                            required: True
