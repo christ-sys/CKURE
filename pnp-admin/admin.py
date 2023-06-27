@@ -93,15 +93,15 @@ class Reports(Screen):
         ph_tz = pytz.timezone('Asia/Manila')
         for report in reports:
             name_text = "Report Sender: " + str(report['sender_name'])
-            report_id_text = "Date: " + str(report['Date'])
-            date_text = "Time: " + str(report['Time'])
+            date_text = "Date: " + str(report['Date'])
+            time_text = "Time: " + str(report['Time'])
             if report['status'] == "Pending":
-                item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
+                item = ThreeLineRightIconListItem(text=name_text, secondary_text=date_text, tertiary_text=time_text)
                 item.add_widget(IconRightWidget(icon="chevron-right"))
                 item.bind(on_release=lambda x, report_id=report['id']: self.on_select(report_id))
                 reports_list.add_widget(item)
             elif report['status'] == "PNP_Approved" or report['status'] == "CASA_Approved":
-                item = ThreeLineRightIconListItem(text=name_text, secondary_text=report_id_text, tertiary_text=date_text)
+                item = ThreeLineRightIconListItem(text=name_text, secondary_text=date_text, tertiary_text=time_text)
                 approved_list.add_widget(item)
     def on_select(self, report_id):
         app = MDApp.get_running_app()
@@ -178,6 +178,7 @@ class ReportDetails(Screen):
 
         # Update the approved value for the report
         report['status'] = "PNP_Approved"
+        report['Approved_by'] = 'Investigator'
 
         # Save the updated report to the database
         report_ref.set(report)
