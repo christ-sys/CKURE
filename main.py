@@ -69,9 +69,9 @@ class CustomRecycleView(RecycleView):
         self.data = []
 class CustomCard(BoxLayout):
     image_source = StringProperty()
-    category = StringProperty()
+    damage_type = StringProperty()
     part = StringProperty()
-    severity = StringProperty()
+    service = StringProperty()
     cost=StringProperty()
     damage = StringProperty()
     confidence = StringProperty()
@@ -197,7 +197,6 @@ class SignUp(Screen):
             insurance_details_screen.user_id = user_uid
 
             self.manager.current = 'car_details'
-            print(user_uid) 
         except Exception as e:
             Snackbar(
                 text="Registration Failed",
@@ -285,7 +284,6 @@ class Login(Screen):
             self.myCredentials(firebaseauth.userID)
 
         except Exception as e:
-            print(str(e))
             Snackbar(
                 text=str(e),
                 snackbar_x="10dp",
@@ -491,9 +489,6 @@ class Home(Screen, MDBoxLayout):
         crop_image.save(myImg.source)
         myImg.reload()
         
-        # self.Update_DataSrc(myImg.source)
-        print('MyID: ' + firebaseauth.userID)
-        
         # Perform predictions on the captured image
         rf = Roboflow(api_key="6riPgDH2G6Wn2Lqa4MTC")
         model = rf.workspace().project("ckure").version(4).model
@@ -503,7 +498,10 @@ class Home(Screen, MDBoxLayout):
             data_list = {
                 'image_source': myImg.source,
                 'damage': 'No predictions found!',
-                'confidence': 'No predictions found!'
+                'confidence': 'No predictions found!',
+                'part':'',
+                'damage_type':'',
+                'service':''
             }
             # Delete the image file
             if os.path.exists(data_list['image_source']):
@@ -702,7 +700,6 @@ class Report(Screen):
             }
             VADetails.update(blotterDetails)
             Ckure.on_submit_report(Ckure)
-            print(VADetails)
             self.manager.current = 'submitted'
         
         except:
@@ -740,7 +737,7 @@ class MyReports(Screen):
                 item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 reports_list.add_widget(item)
                 approved_count += 1
-            elif report_data['status'] == "Pending" or report_data['status'] == "PNP_Approves":
+            elif report_data['status'] == "Pending" or report_data['status'] == "PNP_Approved":
                 item = ThreeLineListItem(text=date, secondary_text=time, tertiary_text=location)
                 item.bind(on_release=lambda instance, data=report_data: self.show_report_details(data))
                 pending_list.add_widget(item)
@@ -854,6 +851,9 @@ class GenerateClaim(Screen):
         self.ids.witness_age.text = report_data['Witness_Age']
         self.ids.witness_gender.text = report_data['Witness_Gender']
         # The Claim
+        self.ids.estimator.text = report_data['estimator']
+        self.ids.date_est.text = report_data['Date_Estimated']
+        self.ids.time_est.text = report_data['Time_Estimated']
         image_urls = report_data['ImgRef']
         panels = report_data['PanelsPart']
         costs = report_data['Costs']
@@ -899,7 +899,10 @@ class GenerateClaim(Screen):
                 'Witness_Address': self.ids.witness_address.text,
                 'Witness_Age': self.ids.witness_age.text,
                 'Witness_Gender': self.ids.witness_gender.text,
-                'Status': "Pending"
+                'Status': "Pending",
+                'estimator': self.ids.estimator.text,
+                'Date_Estimated': self.ids.date_est.text,
+                'Time_Estimated': self.ids.time_est.text
             }
 
             # Get Assured data
@@ -928,7 +931,9 @@ class GenerateClaim(Screen):
             report_data['InsuredVeh_year'] = car_data['year']
             report_data['InsuredVeh_body_type'] = car_data['body_type']
             report_data['InsuredVeh_color'] = car_data['color']
-
+            report_data['estimator']
+            report_data['Date_Estimated']
+            report_data['Time_Estimated']
             # Get image URLs, panels, and costs
             image_urls = []
             panels = []
@@ -941,13 +946,20 @@ class GenerateClaim(Screen):
                     panels.append(widget.text)
                 if isinstance(widget, MDTextField):
                     costs.append(str(widget.text))
-
+            ph_tz = pytz.timezone('Asia/Manila')
+            current_date= time.strftime("%B %d, %Y")
+            current_time = time.strftime("%I:%M:%S %p")
             report_data['ImgRef'] = image_urls
             report_data['PanelsPart'] = panels
             report_data['Costs'] = costs
+            report_data['Submitted_on'] = current_date
+            report_data['Submitted_at'] = current_time
+            
 
             # Submit the claim data to Firestore
             claim_ref = firestoredb.db.collection('claims').add(report_data)
+            report_ref = firestoredb.db.collection('reports').document(report_data['id']).update({'status':'Pending_Claim'})
+            screen_manager.current = "myReports"
         except Exception as e:
             print("Error:", str(e))
     def back(self, button):
@@ -969,11 +981,9 @@ class MyClaims(Screen):
             claims_list.clear_widgets()
             for claim in claims_query:
                 claim_data = claim.to_dict()
-                print(claim_data)
                 doc_id = claim.id
-                print(doc_id)
-                date = "Date: " + claim_data['Date']
-                time = "Time: " + claim_data['Time']
+                date = "Date: " + claim_data['Submitted_on']
+                time = "Time: " + claim_data['Submitted_at']
                 claimant = "Claimant: " + claim_data['Assured_Name']
                 item = ThreeLineRightIconListItem(
                     text=date,
@@ -991,8 +1001,8 @@ class MyClaims(Screen):
                     "Panels: {}\n"\
                     "Costs: {}\n"\
                     "Status: {}\n".format(
-            claim_data['Date'],
-            claim_data['Time'],
+            claim_data['Submitted_on'],
+            claim_data['Submitted_at'],
             claim_data['Assured_Name'],
             claim_data['PanelsPart'],
             ', '.join(str(cost) for cost in costs),
@@ -1057,33 +1067,61 @@ class Ckure(MDApp):
                     total_cost+=int(val)
     #DETECTION
     def performDetections(data_list):
-        rf = Roboflow(api_key="6riPgDH2G6Wn2Lqa4MTC")
-        model = rf.workspace().project("ckure").version(4).model
-        response = model.predict(data_list['image_source'], confidence=40, overlap=30).json()
+        try:
+            rf1 = Roboflow(api_key="6riPgDH2G6Wn2Lqa4MTC")
+            model1 = rf1.workspace().project("ckure").version(4).model
 
-        if not response['predictions']:
-            data_list['damage'] = 'No predictions found!'
-            data_list['confidence'] = 'No predictions found!'
-            dialog = MDDialog(
-                title="No Predictions Found",
-                text="No damage predictions were found for the image.",
-                buttons=[
-                    MDFlatButton(
-                        text="OK",
-                        on_release=lambda x: dialog.dismiss()
-                    )
-                ]
-            )
-            dialog.open()
-        else:
-            predictions = [(round(pred['confidence'] * 100, 2), pred['class']) for pred in response['predictions']]
-            predictions.sort(reverse=True)  # Sort predictions by confidence in descending order
-            max_confidence = predictions[0][0]
-            max_damage = predictions[0][1]
-            data_list['damage'] = max_damage.upper()
-            data_list['confidence'] = f"{max_confidence}%".upper()
-                
-        return data_list
+            rf2 = Roboflow(api_key="Srx2ARomPXABul1CSVWH")
+            model2 = rf2.workspace().project("car-damage-detection-v5fcq").version(3).model
+
+            response1 = model1.predict(data_list['image_source'], confidence=40, overlap=30).json()
+            response2 = model2.predict(data_list['image_source'], confidence=40, overlap=30).json()
+            # rf2 = Roboflow(api_key="EsHr0mDDw6gXwLF7s0DN")
+            # model2 = rf2.workspace().project("ckurev2").version(2).model
+
+            # response1 = model1.predict(data_list['image_source'], confidence=40, overlap=30).json()
+            # response2 = model2.predict(data_list['image_source'], confidence=40, overlap=30).json()
+
+            if not response2['predictions'] and not response1['predictions']:
+                data_list['damage'] = 'No predictions found!'
+                data_list['confidence'] = 'No predictions found!'
+                dialog = MDDialog(
+                    title="No Predictions Found",
+                    text="No damage predictions were found for the image.",
+                    buttons=[
+                        MDFlatButton(
+                            text="OK",
+                            on_release=lambda x: dialog.dismiss()
+                        )
+                    ]
+                )
+                dialog.open()
+            else:
+                predictions1 = [(round(pred['confidence'] * 100, 2), pred['class']) for pred in response1['predictions']]
+                predictions2 = [(round(pred['confidence'] * 100, 2), pred['class']) for pred in response2['predictions']]
+                predictions = predictions1 + predictions2
+                predictions.sort(reverse=True)  # Sort predictions by confidence in descending order
+                max_confidence = predictions[0][0]
+                max_damage = predictions[0][1]
+                data_list['damage'] = max_damage.upper()
+                split_output = data_list['damage'].split('-')
+                part = split_output[0]
+                damage_type = split_output[1]
+                service = split_output[2]
+                data_list['part'] = part
+                data_list['damage_type'] = damage_type
+                data_list['service'] = service
+                data_list['confidence'] = f"{max_confidence}%".upper()
+
+            return data_list
+        except Exception as e:
+            Snackbar(
+                text=str(e),
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+                size_hint_x=(Window.width - (10 * 2)) / Window.width
+            ).open()
+            
 
     def delete(self, x):
         rv = screen_manager.get_screen('result').ids.rv
